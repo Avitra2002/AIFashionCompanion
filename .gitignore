@@ -1,0 +1,110 @@
+# ===================================
+# Flutter / Dart / Android / iOS
+# ===================================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/.symlinks/
+ios/Pods/
+ios/Podfile.lock
+macos/Flutter/ephemeral/
+macos/Pods/
+macos/Podfile.lock
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+web/.dart_tool/
+web/build/
+*.ios
+
+# Android-specific
+.gradle/
+.android/
+local.properties
+*.iml
+.idea/
+*.log
+*.hprof
+*.apk
+*.aab
+*.jks
+*.keystore
+output-metadata.json
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Google Services
+google-services.json
+firebase.json
+
+# Xcode
+DerivedData/
+*.xcworkspace
+*.xcuserstate
+*.xcuserdatad
+*.xcsettings
+
+# ===================================
+# Django / Python
+# ===================================
+*.py[cod]
+fashion_backend/__pycache__/
+db.sqlite3
+media/
+staticfiles/
+.env
+*.env
+.env.*
+*.log
+*.pot
+*.pyc
+celerybeat-schedule
+instance/
+*.sqlite3
+*.db
+
+# Migrations
+**/migrations/
+!**/migrations/__init__.py
+
+# Virtual environments
+venv/
+
+# Gunicorn / uWSGI / coverage / test
+gunicorn.pid
+.coverage
+htmlcov/
+*.cover
+*.log
+coverage.xml
+nosetests.xml
+test_*.xml
+.pytest_cache/
+.tox/
+
+# ===================================
+# VS Code
+# ===================================
+.vscode/
+
+# JetBrains IDEs (IntelliJ, PyCharm, Android Studio)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# ===================================
+# System Files
+# ===================================
+.DS_Store
+Thumbs.db
+
+*.jpg
+*.jpg
+*.[jJ][pP][gG]
