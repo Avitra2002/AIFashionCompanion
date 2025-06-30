@@ -1,34 +1,109 @@
-# Gradle files
-.gradle/
+# ===================================
+# Flutter / Dart / Android / iOS
+# ===================================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
 build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/.symlinks/
+ios/Pods/
+ios/Podfile.lock
+macos/Flutter/ephemeral/
+macos/Pods/
+macos/Podfile.lock
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+web/.dart_tool/
+web/build/
 
-# Local configuration file (sdk path, etc)
+# Android-specific
+.gradle/
+.android/
 local.properties
-
-# Log/OS Files
+*.iml
+.idea/
 *.log
-
-# Android Studio generated files and folders
+*.hprof
+*.apk
+*.aab
+*.jks
+*.keystore
+output-metadata.json
 captures/
 .externalNativeBuild/
 .cxx/
-*.aab
-*.apk
-output-metadata.json
 
-# IntelliJ
-*.iml
-.idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
-
-# Keystore files
-*.jks
-*.keystore
-
-# Google Services (e.g. APIs or Firebase)
+# Google Services
 google-services.json
+firebase.json
 
-# Android Profiling
-*.hprof
+# Xcode
+DerivedData/
+*.xcworkspace
+*.xcuserstate
+*.xcuserdatad
+*.xcsettings
+
+# ===================================
+# Django / Python
+# ===================================
+*.py[cod]
+__pycache__/
+db.sqlite3
+media/
+staticfiles/
+.env
+*.env
+.env.*
+*.log
+*.pot
+*.pyc
+celerybeat-schedule
+instance/
+*.sqlite3
+*.db
+
+# Migrations
+**/migrations/
+!**/migrations/__init__.py
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.venv.bak/
+
+# Gunicorn / uWSGI / coverage / test
+gunicorn.pid
+.coverage
+htmlcov/
+*.cover
+*.log
+coverage.xml
+nosetests.xml
+test_*.xml
+.pytest_cache/
+.tox/
+
+# ===================================
+# VS Code
+# ===================================
+.vscode/
+
+# JetBrains IDEs (IntelliJ, PyCharm, Android Studio)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# ===================================
+# System Files
+# ===================================
+.DS_Store
+Thumbs.db
