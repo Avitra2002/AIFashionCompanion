@@ -108,3 +108,5 @@ Thumbs.db
 *.jpg
 *.jpg
 *.[jJ][pP][gG]
+
+fashion_backend/fashion_backend/firebase_key.json
