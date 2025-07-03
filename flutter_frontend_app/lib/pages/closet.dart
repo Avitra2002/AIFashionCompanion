@@ -15,32 +15,51 @@ class ClosetPage extends StatefulWidget {
 }
 
 class _ClosetPageState extends State<ClosetPage> {
+  ////////////////////
+  // State variables
+  ////////////////////
   String selectedCategory = 'All';
   bool newestFirst = false;
 
-  // Sample data (add more items as needed)
-  final List<Map<String, String>> clothes = [
-    {
-      'image': '../assets/images/shirt 1.jpg',
-      'brand': 'Uniqlo',
-      'category': 'Tops',
-      'color': 'Blue',
-    },
-    // Add more clothes here...
-  ];
+  List<Map<String, dynamic>> allClothes = [];
 
-  List<String> categories = [
-    'Newest First',
-    'Tops',
-    'Bottoms',
-    'Dress',
-    'Shoes',
-    'Bags',
-    'Outerwear',
-    'Jewelry',
-    'Accessories',
-    'Others',
-  ];
+  String? selectedBrand;
+  String? selectedColor;
+
+  ////////////////////
+  //Methods
+  ///////////////////
+
+  Future<void> _fetchClothingItems() async {
+    try {
+      final result = await ApiService.getClosetItems();
+      setState(() {
+        allClothes = List<Map<String, dynamic>>.from(result);
+      });
+    } catch (e) {
+      print('❌ Failed to fetch clothes: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchClothingItems();
+  }
+
+  List<String> get availableBrands {
+    final brands = allClothes.map((item) => item['brand']?.toString() ?? '').toSet();
+    return brands.where((b) => b.isNotEmpty).toList();
+  }
+
+  List<String> get availableColors {    
+    final colors = allClothes.map((item) => item['color']?.toString() ?? '').toSet();
+    return colors.where((c) => c.isNotEmpty).toList();
+  }   
+
+
+  List<String> get categories => [
+  ...Category.values.map((e) => categoryLabel(e)),];
 
   void _onAddClothingPressed() async {
     final source = await showModalBottomSheet<ImageSource>(
@@ -58,15 +77,6 @@ class _ClosetPageState extends State<ClosetPage> {
 
     final result = await ApiService.uploadAndClassifyImage(File(picked.path));
     
-    // final item = ClothingItem(
-    //   imagePath: picked.path,
-    //   brand: 'Uniqlo',
-    //   name: 'Sample Shirt',
-    //   category: Category.tops,
-    //   color: 'Blue',
-    //   style: 'Casual',
-    //   season: 'Summer',
-    // );
     
     if (result != null) {
       final item = ClothingItem(
@@ -91,12 +101,15 @@ class _ClosetPageState extends State<ClosetPage> {
   }
 
   Category parseCategory(String input) {
-  return Category.values.firstWhere(
-    (e) => categoryLabel(e).toLowerCase() == input.toLowerCase(),
-    orElse: () => Category.others, // fallback
-  );
-}
+    return Category.values.firstWhere(
+      (e) => categoryLabel(e).toLowerCase() == input.toLowerCase(),
+      orElse: () => Category.others, // fallback
+    );
+  }
 
+ //////////////////
+  // Widgets
+/////////////////
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,15 +117,16 @@ class _ClosetPageState extends State<ClosetPage> {
         title: const Text('Closet'),
         actions: [
           IconButton(icon: const Icon(Icons.bookmark_border), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.filter_list), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.filter_list), onPressed: _showFilterBottomSheet),
         ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text('Current closet items: XX'),
+            child: Text('Current closet items: ${allClothes.length}',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -174,7 +188,19 @@ class _ClosetPageState extends State<ClosetPage> {
   }
 
   Widget _buildClothesGrid() {
-    List<Map<String, String>> filtered = clothes;
+    List<Map<String, dynamic>> filtered = List.from(allClothes);
+
+    if (selectedBrand != null && selectedBrand!.isNotEmpty) {
+      filtered = filtered
+          .where((item) => item['brand']?.toLowerCase() == selectedBrand!.toLowerCase())
+          .toList();
+    }
+
+    if (selectedColor != null && selectedColor!.isNotEmpty) {
+      filtered = filtered
+          .where((item) => item['color']?.toLowerCase() == selectedColor!.toLowerCase())
+          .toList();
+    }
 
     // Filter by category
     if (selectedCategory != 'All') {
@@ -182,11 +208,25 @@ class _ClosetPageState extends State<ClosetPage> {
           .where((item) => item['category']?.toLowerCase() == selectedCategory.toLowerCase())
           .toList();
     }
-
-    // Newest First (simulate by limiting)
+    // Filter by newest
     if (newestFirst) {
-      filtered = filtered.take(5).toList(); // Only top 5
-    }
+      filtered.sort((a, b) {
+        final aDateStr = a['date'] ?? '';
+        print ('aDateStr: $aDateStr');
+        final bDateStr = b['date'] ?? '';
+        print ('bDateStr: $bDateStr');
+
+        try {
+          final aDate = DateTime.parse(aDateStr);
+          final bDate = DateTime.parse(bDateStr);
+          return bDate.compareTo(aDate); // descending
+        } catch (_) {
+          return 0;
+        }
+      });
+
+      filtered = filtered.take(5).toList();
+  }
 
     return GridView.builder(
       padding: const EdgeInsets.all(10),
@@ -203,7 +243,7 @@ class _ClosetPageState extends State<ClosetPage> {
           child: Column(
             children: [
               Expanded(
-                child: Image.asset(item['image']!, fit: BoxFit.cover),
+                child: Image.network(item['image_url']!, fit: BoxFit.cover),
               ),
               Padding(
                 padding: const EdgeInsets.all(4.0),
@@ -235,4 +275,66 @@ class _ClosetPageState extends State<ClosetPage> {
       ),
     );
   }
-}
+
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Filter Closet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+
+              DropdownButtonFormField<String>(
+                value: selectedBrand,
+                hint: const Text('Select Brand'),
+                items: availableBrands
+                    .map((brand) => DropdownMenuItem(
+                          value: brand,
+                          child: Text(brand),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() => selectedBrand = value);
+                },
+                isExpanded: true,
+              ),
+
+              const SizedBox(height: 10),
+
+              DropdownButtonFormField<String>(
+                value: selectedColor,
+                hint: const Text('Select Color'),
+                items: availableColors
+                    .map((color) => DropdownMenuItem(
+                          value: color,
+                          child: Text(color),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() => selectedColor = value);
+                },
+                isExpanded: true,
+              ),
+
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  setState(() {}); // Refresh filters
+                },
+                child: const Text('Apply Filters'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+} // End of ClosetPage class

@@ -19,6 +19,8 @@ from ..firebase_utils import save_clothing_item_to_firestore
 #             'item': data
 #         }, status=status.HTTP_201_CREATED)
 
+
+
 class SaveClothingItemView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):

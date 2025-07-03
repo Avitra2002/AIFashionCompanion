@@ -52,21 +52,24 @@ class ApiService {
   static Future<List<Map<String, dynamic>>> getClosetItems() async {
     final user = FirebaseAuth.instance.currentUser;
     final idToken = await user!.getIdToken(); // Firebase ID token
-    final url = Uri.parse('$baseUrl/api/closet-items/');
+    print('Fetching closet items with token: $idToken');
 
-    final response = await http.get(url,
+    final url = Uri.parse('$baseUrl/api/closet-items/all/');
+
+    final response = await http.get(
+      url,
       headers: {
-        'Authorization' : 'Bearer $idToken',
-      });
-      
+        'Authorization': 'Bearer $idToken',
+      },
+    );
 
     if (response.statusCode == 200) {
-      final List items = json.decode(response.body);
-      return items.cast<Map<String, dynamic>>();
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((item) => Map<String, dynamic>.from(item)).toList();
     } else {
-      print('Fetch failed: ${response.statusCode}');
-      return [];
+      throw Exception('❌ Failed to load clothing items');
     }
   }
+
 }
 
