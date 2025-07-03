@@ -15,9 +15,7 @@ class ClothingItem(models.Model):
     image_url = models.URLField(max_length=500) 
 
     vector_id = models.CharField(max_length=100, blank=True, null=True)
-    vector = ArrayField(
-        base_field=models.FloatField(), blank=True, null=True
-    )
+    vector = models.JSONField(blank=True, null=True)
 
     date = models.DateTimeField(auto_now_add=True)
 
