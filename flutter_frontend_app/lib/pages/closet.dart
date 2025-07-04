@@ -6,7 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import '../model/category.dart';
 import 'add_clothing.dart';
 import '../services/api.dart';
-
+import 'package:auto_route/auto_route.dart';
+@RoutePage()
 class ClosetPage extends StatefulWidget {
   const ClosetPage({super.key});
 
@@ -25,6 +26,7 @@ class _ClosetPageState extends State<ClosetPage> {
 
   String? selectedBrand;
   String? selectedColor;
+
 
   ////////////////////
   //Methods
@@ -110,6 +112,9 @@ class _ClosetPageState extends State<ClosetPage> {
  //////////////////
   // Widgets
 /////////////////
+
+
+///MAIN BUILD 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,14 +150,14 @@ class _ClosetPageState extends State<ClosetPage> {
           Expanded(child: _buildClothesGrid()),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.checkroom), label: 'Closet'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Shopping'),
-        ],
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   currentIndex: 1,
+      //   items: const [
+      //     BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+      //     BottomNavigationBarItem(icon: Icon(Icons.checkroom), label: 'Closet'),
+      //     BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Shopping'),
+      //   ],
+      // ),
     );
   }
 

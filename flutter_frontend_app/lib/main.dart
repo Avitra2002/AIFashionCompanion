@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import '../pages/closet.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/firebase_auth.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
+import '../routes/app_router.dart';
+
+final _appRouter = AppRouter(); // Define the AppRouter instance
 
 void main() async {
+  await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
@@ -37,21 +41,20 @@ class MyApp extends StatelessWidget {
         // or press Run > Flutter Hot Reload in a Flutter IDE). Notice that the
         // counter didn't reset back to zero; the application is not restarted.
   @override
-Widget build(BuildContext context) {
-  return MaterialApp(
-    title: 'Fashion Companion AI',
-    theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color.fromARGB(255, 165, 209, 246),
-        primary: Colors.black,
-        secondary: Colors.white,
-        tertiary: const Color.fromARGB(255, 193, 236, 194),
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'Fashion Companion AI',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 165, 209, 246),
+          primary: Colors.black,
+          secondary: Colors.white,
+          tertiary: const Color.fromARGB(255, 193, 236, 194),
+        ),
+        useMaterial3: true,
+        fontFamily: 'Romaine',
       ),
-      useMaterial3: true,
-      fontFamily: 'Romaine',
-    ),
-    home: ClosetPage(),
-  );
-}
-
+      routerConfig: _appRouter.config(), // ✅ This activates auto_route
+    );
+  }
 }
