@@ -23,3 +23,11 @@ def get_clothing_items_from_firestore(uid):
         items.append(item)
     
     return items
+
+def update_clothing_item_in_firestore(uid, item_id, data):
+    doc_ref = db.collection("users").document(uid).collection("clothing_items").document(item_id)
+    if doc_ref.get().exists:
+        doc_ref.update(data)
+        return True
+    else:
+        return False

@@ -3,6 +3,10 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 
+///
+//CRUD CALLS
+// This service handles API calls for the AI Fashion Companion app
+
 class ApiService {
   static const String baseUrl = 'http://10.0.2.2:8000';
 
@@ -48,7 +52,7 @@ class ApiService {
     return response.statusCode == 201;
   }
 
-  /// 3. Get all clothing items
+  /// 3. Read all clothing items
   static Future<List<Map<String, dynamic>>> getClosetItems() async {
     final user = FirebaseAuth.instance.currentUser;
     final idToken = await user!.getIdToken(); // Firebase ID token
@@ -69,6 +73,25 @@ class ApiService {
     } else {
       throw Exception('❌ Failed to load clothing items');
     }
+  }
+
+  // 4. Update clothing item
+  static Future<bool> updateClothingItem(String id, Map<String, dynamic> data) async {
+    final user = FirebaseAuth.instance.currentUser;
+    final idToken = await user!.getIdToken();
+
+    final url = Uri.parse('$baseUrl/api/closet-items/$id/');
+
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $idToken',
+      },
+      body: jsonEncode(data),
+    );
+
+    return response.statusCode == 200;
   }
 
 }

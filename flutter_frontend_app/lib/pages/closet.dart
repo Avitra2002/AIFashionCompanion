@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend_app/model/clothing_item.dart';
+import 'package:flutter_frontend_app/pages/update_clothing.dart';
 import 'package:image_picker/image_picker.dart';
 import '../model/category.dart';
 import 'add_clothing.dart';
@@ -244,7 +245,18 @@ class _ClosetPageState extends State<ClosetPage> {
       ),
       itemBuilder: (context, index) {
         final item = filtered[index];
-        return Card(
+        return GestureDetector(
+          onTap:() {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => UpdateClothingScreen(item: item),
+              ),
+            );
+          },
+        
+        
+        child: Card(
           child: Column(
             children: [
               Expanded(
@@ -256,6 +268,7 @@ class _ClosetPageState extends State<ClosetPage> {
               ),
             ],
           ),
+          )
         );
       },
     );
