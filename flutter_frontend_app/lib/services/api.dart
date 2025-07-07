@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,24 +10,24 @@ class ApiService {
   static const String baseUrl = 'http://10.0.2.2:8000';
 
   /// 1. Upload image and get AI classification
-  static Future<Map<String, dynamic>?> uploadAndClassifyImage(File imageFile) async {
-    print('📡 Sending image to /api/classify/...');
+  static Future<Map<String, dynamic>?> uploadAndClassifyImage(String imageUrl) async {
+    print("📡 Sending image to /api/classify/...: $imageUrl");
 
     final url = Uri.parse('$baseUrl/api/classify/');
 
-    final request = http.MultipartRequest('POST', url);
-    request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+    final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'image_url': imageUrl}),
+  );
 
-    final response = await request.send();
-
-    if (response.statusCode == 200) {
-      final body = await response.stream.bytesToString();
-      return json.decode(body);
-    } else {
-      print('Classification failed: ${response.statusCode}');
-      return null;
-    }
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+  } else {
+    print('❌ Classification via URL failed: ${response.statusCode}');
+    return null;
   }
+}
 
   /// 2. Save clothing item to DB
   static Future<bool> saveClothingItem(Map<String, dynamic> itemData) async {

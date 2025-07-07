@@ -10,6 +10,7 @@ enum Category {
   jewelry,
   accessories,
   others,
+  overalls
 }
 
 String categoryLabel(Category category) {
@@ -36,6 +37,8 @@ String categoryLabel(Category category) {
       return 'Others';
     case Category.all:
       return 'All';
+    case Category.overalls:
+      return 'Overalls';
   }
 }
 
