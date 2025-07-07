@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend_app/model/clothing_item.dart';
 import 'package:flutter_frontend_app/pages/update_clothing.dart';
@@ -60,6 +61,24 @@ class _ClosetPageState extends State<ClosetPage> {
     return colors.where((c) => c.isNotEmpty).toList();
   }   
 
+  void _showLoadingDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          content: Row(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 16),
+              Expanded(child: Text(message)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
   List<String> get categories => [
   ...Category.values.map((e) => categoryLabel(e)),];
@@ -69,37 +88,70 @@ class _ClosetPageState extends State<ClosetPage> {
       context: context,
       builder: (ctx) => _imageSourceSelector(ctx),
     );
-    
+
     if (!mounted || source == null) return;
-    
+
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: source);
-    
-    if (!mounted || picked == null) return;
-    print('Uploading image_ path in closet.dart: ${picked.path}');
 
-    final result = await ApiService.uploadAndClassifyImage(File(picked.path));
-    
-    
+    if (!mounted || picked == null) return;
+    print('Uploading image path in closet.dart: ${picked.path}');
+
+    _showLoadingDialog('Uploading and classifying image...');
+
+    final file = File(picked.path);
+    final fileName = 'clothes/${DateTime.now().millisecondsSinceEpoch}.jpg';
+    print('File name for upload to Firebase: $fileName');
+    final ref = FirebaseStorage.instance.ref().child(fileName);
+    await ref.putFile(file);
+    final imageURL = await ref.getDownloadURL();
+    print('✅ Uploaded to Firebase. Public image URL: $imageURL');
+
+    final result = await ApiService.uploadAndClassifyImage(imageURL);
+
+    // ✅ Declare item first
+    late ClothingItem item;
+
     if (result != null) {
-      final item = ClothingItem(
+      item = ClothingItem(
         imagePath: picked.path,
         brand: result['brand'] ?? '',
+        description: result['description'] ?? '',
         name: result['name'] ?? '',
         category: parseCategory(result['category']),
         color: result['color'] ?? '',
         style: result['style'] ?? '',
         season: result['season'] ?? '',
+        vectorId: result['vector_id'] ?? '',
+        imageUrl: result['image_url'] ?? imageURL,
       );
-    
+    } else {
+      // Fallback if classification fails
+      item = ClothingItem(
+        imagePath: picked.path,
+        imageUrl: imageURL,
+        brand: '',
+        description: '',
+        name: '',
+        category: Category.others,
+        color: '',
+        style: '',
+        season: '',
+      );
+    }
+
     if (!mounted) return;
-    
-    Navigator.push(
+    Navigator.pop(context); // Close loading dialog
+
+    final classificationResult = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => AddClothingScreen(item: item),
       ),
     );
+
+    if (classificationResult == true) {
+      await _fetchClothingItems();
     }
   }
 

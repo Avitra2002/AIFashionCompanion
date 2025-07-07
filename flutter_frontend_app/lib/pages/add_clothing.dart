@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_frontend_app/model/clothing_item.dart';
 import 'package:flutter_frontend_app/services/api.dart';
 import '../model/category.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
 
 class AddClothingScreen extends StatefulWidget {
   final ClothingItem item;
@@ -28,6 +28,7 @@ class _AddClothingScreenState extends State<AddClothingScreen> {
     brandCtrl = TextEditingController(text: widget.item.brand);
     nameCtrl = TextEditingController(text: widget.item.name);
     colorCtrl = TextEditingController(text: widget.item.color);
+
 
     if (!styles.contains(widget.item.style)) {
     styles.add(widget.item.style);
@@ -60,6 +61,16 @@ class _AddClothingScreenState extends State<AddClothingScreen> {
             children: [
               Image.file(File(widget.item.imagePath), height: 200),
               const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Description: ${widget.item.description}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
               _buildTextField('Brand', brandCtrl),
               _buildTextField('Name', nameCtrl),
               _buildDropdown<Category>(
@@ -116,36 +127,38 @@ class _AddClothingScreenState extends State<AddClothingScreen> {
                       );
                       return;
                     }
-                    final fileName = 'clothes/${DateTime.now().millisecondsSinceEpoch}.jpg';
-                    final ref = FirebaseStorage.instance.ref().child(fileName);
+                    // final fileName = 'clothes/${DateTime.now().millisecondsSinceEpoch}.jpg';
+                    // final ref = FirebaseStorage.instance.ref().child(fileName);
 
-                    try {
-                      print("Uploading image to Firebase Storage: $fileName");
-                      // await ref.putFile(file);
-                      final bytes = await file.readAsBytes();
-                      print("Read ${bytes.length} bytes from image");
+                    // try {
+                    //   print("Uploading image to Firebase Storage: $fileName");
+                    //   // await ref.putFile(file);
+                    //   final bytes = await file.readAsBytes();
+                    //   print("Read ${bytes.length} bytes from image");
 
-                      await ref.putData(bytes);
-                      final imageURL = await ref.getDownloadURL();
-                      print("Image uploaded successfully: $imageURL");
-                      widget.item.imageUrl = imageURL; // Store the URL in the item
-                    } catch (e) {
-                      print("Image upload failed: $e");
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Error uploading image')),
-                      );
-                      return;
-                    }
+                    //   await ref.putData(bytes);
+                    //   final imageURL = await ref.getDownloadURL();
+                    //   print("Image uploaded successfully: $imageURL");
+                    //   widget.item.imageUrl = imageURL; // Store the URL in the item
+                    // } catch (e) {
+                    //   print("Image upload failed: $e");
+                    //   ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(content: Text('Error uploading image')),
+                    //   );
+                    //   return;
+                    // }
 
 
                     final itemData = {
                       'brand': widget.item.brand,
                       'name': widget.item.name,
+                      'description': widget.item.description,
                       'category': categoryLabel(widget.item.category),
                       'color': widget.item.color,
                       'style': widget.item.style,
                       'season': widget.item.season,
-                      'image_url': widget.item.imageUrl, // Use the uploaded image URL
+                      'image_url': widget.item.imageUrl,
+                      'vector_id': widget.item.vectorId,
                     };
                     print("Sending itemData: $itemData");
                     final success = await ApiService.saveClothingItem(itemData);
@@ -155,7 +168,7 @@ class _AddClothingScreenState extends State<AddClothingScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Saved to closet!')),
                       );
-                      Navigator.pop(context);
+                      Navigator.pop(context,true);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Error saving item')),
