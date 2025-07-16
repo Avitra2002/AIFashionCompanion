@@ -31,12 +31,14 @@ class _AddClothingScreenState extends State<AddClothingScreen> {
 
 
     if (!styles.contains(widget.item.style)) {
-    styles.add(widget.item.style);
-  }
+      widget.item.style = 'Casual'; // Default style if not found
+    }
 
-  if (!seasons.contains(widget.item.season)) {
-    seasons.add(widget.item.season);
-  }
+    if (!seasons.contains(widget.item.season)) {
+      widget.item.season = 'Summer'; // Default season if not found
+    }
+
+
   }
 
   @override
@@ -61,21 +63,24 @@ class _AddClothingScreenState extends State<AddClothingScreen> {
             children: [
               Image.file(File(widget.item.imagePath), height: 200),
               const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Description: ${widget.item.description}',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(vertical: 6),
+              //   child: Align(
+              //     alignment: Alignment.centerLeft,
+              //     child: Text(
+              //       'Description: ${widget.item.description}',
+              //       style: const TextStyle(fontSize: 16),
+              //     ),
+              //   ),
+              // ),
               _buildTextField('Brand', brandCtrl),
               _buildTextField('Name', nameCtrl),
               _buildDropdown<Category>(
                 label: 'Category',
-                value: widget.item.category,
+                value: (widget.item.category != Category.all &&
+                      widget.item.category != Category.newest)
+                  ? widget.item.category
+                  : Category.tops,
                 items: Category.values.where((c) => c != Category.all && c != Category.newest).toList(),
                 labelBuilder: categoryLabel,
                 onChanged: (val) => setState(() => widget.item.category = val!),

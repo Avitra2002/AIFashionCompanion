@@ -31,6 +31,7 @@ class SaveClothingItemView(APIView):
 
             # Prepare Firestore data
             firestore_data = serializer.data
+            firestore_data["id"] = str(instance.id)
             firestore_data["date"] = firestore.SERVER_TIMESTAMP  # Use Firestore timestamp
 
             
@@ -38,6 +39,18 @@ class SaveClothingItemView(APIView):
 
             # nested Firestore path
             save_clothing_item_to_firestore(firestore_data, firebase_uid)
+
+            print('Scheduling background task for clothing item processing...')
+            metadata = {
+                'name': instance.name,
+                'category': instance.category,
+                'color': instance.color,
+                'style': instance.style,
+                'season': instance.season,
+            }
+            image_url = instance.image_url
+            from ..background_task import process_clothing_item_background
+            process_clothing_item_background.delay(image_url, metadata)
 
             return Response({'success': True, 'item': serializer.data}, status=status.HTTP_201_CREATED)
 

@@ -18,15 +18,26 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 import ollama
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
 qdrant = QdrantClient(host='localhost', port=6333)
 collection_name = "closet_vectors"
-dimension = 384
+dimension = 512
 
-qdrant.recreate_collection(
-    collection_name=collection_name,
-    vectors_config=VectorParams(size=dimension, distance=Distance.COSINE)
-)
+
+try:
+    if not qdrant.collection_exists(collection_name):
+        print(f"Collection '{collection_name}' does not exist, creating it...")
+        qdrant.create_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=dimension, distance=Distance.COSINE)
+        )
+except Exception as e:
+    print(f"Error checking or creating collection: {e}")
+    raise
+
+# qdrant.recreate_collection(
+#     collection_name=collection_name,
+#     vectors_config=VectorParams(size=dimension, distance=Distance.COSINE)
+# )
 
 class ClassifyClothingView(APIView):
     parser_classes = [JSONParser]
@@ -42,13 +53,28 @@ class ClassifyClothingView(APIView):
             tmp_path = tmp.name
 
         try:
-            result = self.pipeline(tmp_path)
+            # result = self.pipeline(tmp_path)
+            metadata = self.classify_image(tmp_path)
         finally:
             os.remove(tmp_path)  # clean up
 
-        result['image_url'] = image_url
+        # result['image_url'] = image_url
 
-        return Response(result, status=status.HTTP_200_OK)
+        # print('Scheduling background task for clothing item processing...')
+        # from ..background_task import process_clothing_item_background
+        # process_clothing_item_background.delay(image_url, metadata)
+
+        return Response({
+            "image_url": image_url,
+            "brand": "",
+            "name": metadata['name'].capitalize(),
+            "category": metadata.get('category', 'others').capitalize(),
+            "color": metadata['color'].capitalize(),
+            "style": metadata['style'].capitalize(),
+            "season": metadata['season'].capitalize(),
+            "vector_id": "",  # populated later
+            "description": "",  # populated later
+        }, status=status.HTTP_200_OK)
     
 
     def classify_image(self, image_path: str) -> dict:
@@ -77,62 +103,68 @@ class ClassifyClothingView(APIView):
         else:
             raise ValueError("No valid JSON found in classification response")
 
-    def generate_description(self, metadata: dict) -> str:
-        prompt = f"""
-        Using the following fashion item metadata, write a short product description that includes all the details: name, category, color, style, and season.
+    # def generate_description(self, metadata: dict) -> str:
+    #     prompt = f"""
+    #     Using the following fashion item metadata, write a short product description that includes all the details: name, category, color, style, and season.
 
-        - Name: {metadata['name']}
-        - Category: {metadata['category']}
-        - Color: {metadata['color']}
-        - Style: {metadata['style']}
-        - Season: {metadata['season']}
+    #     - Name: {metadata['name']}
+    #     - Category: {metadata['category']}
+    #     - Color: {metadata['color']}
+    #     - Style: {metadata['style']}
+    #     - Season: {metadata['season']}
 
-        Ensure that all fields are reflected clearly in the description and use neutral language.
+    #     Ensure that all fields are reflected clearly in the description and use neutral language.
 
-        Return only the description text without any additional formatting or JSON structure.
-        """
-        response = ollama.chat(
-            model='moondream:latest', #gemma3:4b
-            messages=[
-                {"role": "system", "content": "You are a fashion product description generator."},
-                {"role": "user", "content": prompt.strip()}
-            ]
-        )
-        description = response['message']['content'].strip()
-        lines = [line.strip() for line in description.splitlines() if line.strip()]
-        return lines[-1] if lines else description
+    #     Return only the description text without any additional formatting or JSON structure.
+    #     """
+    #     response = ollama.chat(
+    #         model='moondream:latest', #gemma3:4b
+    #         messages=[
+    #             {"role": "system", "content": "You are a fashion product description generator."},
+    #             {"role": "user", "content": prompt.strip()}
+    #         ]
+    #     )
+    #     description = response['message']['content'].strip()
+    #     lines = [line.strip() for line in description.splitlines() if line.strip()]
+    #     return lines[-1] if lines else description
 
-    def pipeline(self,image_path: str) -> dict:
-        metadata = self.classify_image(image_path)
-        description = self.generate_description(metadata)
+    # def pipeline(self,image_path: str) -> dict:
+    #     metadata = self.classify_image(image_path)
 
-        item_id = uuid.uuid4().hex  # unique string ID
-        vector = model.encode(description).tolist()
-        # print("Generated vector:", vector)
-        # print("Vector length:", len(vector))
+    #     ##### make ASYNC #####
+    #     description = self.generate_description(metadata)
 
-        # Only save vector and id to Qdrant with minimal payload
-        print (f"vector_id {item_id} with vector {vector} and metadata {metadata}")
-        qdrant.upsert(
-            collection_name=collection_name,
-            points=[PointStruct(
-                id=item_id,
-                vector=vector,
-                payload={}  # empty or minimal payload here
-            )]
-        )
+    #     item_id = uuid.uuid4().hex  # unique string ID
+    #     vector = model.encode(description).tolist()
 
-        final_item = {
-            'brand': '',
-            'name': metadata['name'].capitalize(),
-            'description': description,
-            'category': metadata['category'].capitalize(),
-            'color': metadata['color'].capitalize(),
-            'style': metadata['style'].capitalize(),
-            'season': metadata['season'].capitalize(),
-            'vector_id': item_id
+    #     # TODO: Use YOLO World + MobileSAM to crop and remove background from the image
+    #     ##TODO: Use CLIP to make image vector 
+    #     # TODO: Save image vector to Qdrant
+    #     # TODO: Make text and image embedding an async background task that will not disturb UI
 
-        }
-        return final_item
+    #     # Only save vector and id to Qdrant with minimal payload
+    #     print (f"vector_id {item_id} with vector {vector} and metadata {metadata}")
+    #     qdrant.upsert(
+    #         collection_name=collection_name,
+    #         points=[PointStruct(
+    #             id=item_id,
+    #             vector=vector,
+    #             payload={}  # empty or minimal payload here
+    #         )]
+    #     )
+        
+    #     #################################
+    #     final_item = {
+    #         'brand': '',
+    #         'name': metadata['name'].capitalize(),
+    #         'description': description, # save later to FB asynchronously
+    #         'category': metadata['category'].capitalize(),
+    #         'color': metadata['color'].capitalize(),
+    #         'style': metadata['style'].capitalize(),
+    #         'season': metadata['season'].capitalize(),
+    #         'vector_id': item_id # save later to FB asynchronously
+
+    #     }
+    #     return final_item
 
 
