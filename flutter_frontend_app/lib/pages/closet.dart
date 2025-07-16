@@ -116,13 +116,13 @@ class _ClosetPageState extends State<ClosetPage> {
       item = ClothingItem(
         imagePath: picked.path,
         brand: result['brand'] ?? '',
-        description: result['description'] ?? '',
+        description: '',
         name: result['name'] ?? '',
         category: parseCategory(result['category']),
         color: result['color'] ?? '',
         style: result['style'] ?? '',
         season: result['season'] ?? '',
-        vectorId: result['vector_id'] ?? '',
+        vectorId: '',
         imageUrl: result['image_url'] ?? imageURL,
       );
     } else {

@@ -93,5 +93,25 @@ class ApiService {
     return response.statusCode == 200;
   }
 
-}
+  // 5. chat with AI
+  static Future<String> chatWithAI(String message) async {
+    final user = FirebaseAuth.instance.currentUser;
+    final idToken = await user!.getIdToken();  
+    final url = Uri.parse('$baseUrl/api/chat/');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization' : 'Bearer $idToken',
+      },
+      body: jsonEncode({'message': message}),
+    ); 
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['reply'] ?? 'No response from AI.';
+    } else {
+      throw Exception('❌ Failed to chat with AI: ${response.statusCode}');
+    }
 
+  }
+}

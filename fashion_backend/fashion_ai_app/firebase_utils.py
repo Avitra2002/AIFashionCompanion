@@ -9,7 +9,7 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 def save_clothing_item_to_firestore(data, uid):
-    doc_ref = db.collection("users").document(uid).collection("clothing_items").document()
+    doc_ref = db.collection("users").document(uid).collection("clothing_items").document(str(data["id"]))
     doc_ref.set(data)
 
 def get_clothing_items_from_firestore(uid):

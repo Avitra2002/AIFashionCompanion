@@ -108,6 +108,9 @@ Thumbs.db
 *.jpg
 *.jpg
 *.[jJ][pP][gG]
+*.jpeg
+*.[jJ][pP][eE][gG]
+*.png
 
 # Secret files
 *.key
@@ -116,3 +119,5 @@ Thumbs.db
 
 flutter_frontend/
 fashion_backend/firebase_key.json
+
+*.pt
