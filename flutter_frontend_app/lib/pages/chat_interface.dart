@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend_app/model/chat_message.dart';
 import 'package:flutter_frontend_app/services/api.dart';
@@ -14,6 +16,7 @@ class _ChatInterfaceState extends State<ChatInterface> {
   final TextEditingController _controller = TextEditingController();
   bool _isSending = false;
 
+
   void _sendMessage() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
@@ -25,24 +28,58 @@ class _ChatInterfaceState extends State<ChatInterface> {
     });
 
     try {
-      final aiReply = await ApiService.chatWithAI(text);
-
-      setState(() {
-        _messages.add(ChatMessage(text: aiReply, sender: Sender.ai));
-      });
+      final looks = await ApiService.chatWithAI(text);
+      for (final look in looks) {
+        _messages.add(ChatMessage(look: look, sender: Sender.ai));
+      }
     } catch (e) {
-      setState(() {
-        _messages.add(ChatMessage(
-          text: "❌ Error: ${e.toString()}",
-          sender: Sender.ai,
-        ));
-      });
+      _messages.add(ChatMessage(
+        text: "❌ Error: ${e.toString()}",
+        sender: Sender.ai,
+      ));
     } finally {
       setState(() {
         _isSending = false;
       });
     }
   }
+
+  Widget _buildLookBubble(Map<String, dynamic> look) {
+    final base64Str = look["collage_base64"].toString().split(',').last;
+    final imageBytes = base64Decode(base64Str);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Image.memory(imageBytes),
+        const SizedBox(height: 8),
+        Text(
+          look['look_name'] ?? '',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(look['description'] ?? ''),
+        const SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: () async {
+            final success = await ApiService.saveLook(look);
+            final lookName = look['look_name'] ?? 'this look';
+
+            final message = success
+                ? '✅ Successfully saved $lookName!'
+                : '❌ Failed to save $lookName.';
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(message)),
+            );
+             
+          },
+          child: const Text("Save Look"),
+        ),
+      ],
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -54,28 +91,29 @@ class _ChatInterfaceState extends State<ChatInterface> {
             itemCount: _messages.length,
             itemBuilder: (context, index) {
               final msg = _messages[index];
+              final isUser = msg.sender == Sender.user;
+
               return Align(
-                alignment: msg.sender == Sender.user
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
+                alignment:
+                    isUser ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
                   padding: const EdgeInsets.all(12),
-                  constraints: const BoxConstraints(maxWidth: 280),
+                  constraints: const BoxConstraints(maxWidth: 320),
                   decoration: BoxDecoration(
-                    color: msg.sender == Sender.user
+                    color: isUser
                         ? Colors.blueAccent
-                        : Colors.grey.shade300,
+                        : Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text(
-                    msg.text,
-                    style: TextStyle(
-                      color: msg.sender == Sender.user
-                          ? Colors.white
-                          : Colors.black87,
-                    ),
-                  ),
+                  child: msg.look != null
+                      ? _buildLookBubble(msg.look!)
+                      : Text(
+                          msg.text ?? '',
+                          style: TextStyle(
+                            color: isUser ? Colors.white : Colors.black87,
+                          ),
+                        ),
                 ),
               );
             },
@@ -95,7 +133,7 @@ class _ChatInterfaceState extends State<ChatInterface> {
                 child: TextField(
                   controller: _controller,
                   decoration: const InputDecoration(
-                    hintText: "Ask the AI stylist...",
+                    hintText: "Type in an ocassion you want to dress for...",
                     border: OutlineInputBorder(),
                   ),
                   onSubmitted: (_) => _sendMessage(),
@@ -112,4 +150,5 @@ class _ChatInterfaceState extends State<ChatInterface> {
       ],
     );
   }
+
 }

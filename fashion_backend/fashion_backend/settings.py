@@ -131,9 +131,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 import firebase_admin
 from firebase_admin import credentials
 
-cred_path = os.path.join(BASE_DIR, 'firebase_key.json') 
-cred = credentials.Certificate(cred_path)
-firebase_admin.initialize_app(cred)
+# cred_path = os.path.join(BASE_DIR, 'firebase_key.json') 
+# cred = credentials.Certificate(cred_path)
+# firebase_admin.initialize_app(cred)
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
