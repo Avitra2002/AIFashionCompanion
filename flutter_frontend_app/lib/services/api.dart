@@ -94,24 +94,64 @@ class ApiService {
   }
 
   // 5. chat with AI
-  static Future<String> chatWithAI(String message) async {
+  static Future<List<Map<String, dynamic>>> chatWithAI(String message) async {
     final user = FirebaseAuth.instance.currentUser;
-    final idToken = await user!.getIdToken();  
+    final idToken = await user!.getIdToken();
+    final uid = user.uid;
+
     final url = Uri.parse('$baseUrl/api/chat/');
+
     final response = await http.post(
       url,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization' : 'Bearer $idToken',
+        'Authorization': 'Bearer $idToken',
       },
-      body: jsonEncode({'message': message}),
-    ); 
+      body: jsonEncode({'message': message, 'uid': uid}),
+    );
+
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data['reply'] ?? 'No response from AI.';
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((e) => Map<String, dynamic>.from(e)).toList();
     } else {
       throw Exception('❌ Failed to chat with AI: ${response.statusCode}');
     }
-
   }
+
+  // 6. Save look
+  static Future<bool> saveLook(Map<String, dynamic> look) async {
+    final user = FirebaseAuth.instance.currentUser;
+    final idToken = await user!.getIdToken();
+    final uid = user.uid;
+
+    final url = Uri.parse('$baseUrl/api/save_look/');
+
+    final body = {
+      "uid": uid,
+      "look_name": look["look_name"],
+      "template": look["template"],
+      "description": look["description"],
+      "collage_base64": look["collage_base64"],
+      "items": look["items"],  // List of { id, name }
+    };
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $idToken',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      print("❌ Failed to save look: ${response.statusCode}");
+      print(response.body);
+      return false;
+    }
+  }
+
+
 }

@@ -182,8 +182,17 @@ def process_clothing_item_background(image_url, metadata):
         qdrant.upsert(
             collection_name=collection_name,
             points=[
-                PointStruct(id=img_id, vector=image_vector.tolist(), payload={"type": "image", "item_id": item_id}),
-                PointStruct(id=text_id, vector=text_vector.tolist(), payload={"type": "text", "item_id":item_id, "description": cleaned_description})
+                PointStruct(id=img_id, vector=image_vector.tolist(), 
+                            payload={"type": "image", 
+                                     "item_id": item_id, 
+                                     "category": metadata.get('category', '').lower(), "style": metadata.get('style', '').lower(), 
+                                     "season": metadata.get('season', '').lower(), 
+                                     "color": metadata.get('color', '').lower(),}),
+                PointStruct(id=text_id, vector=text_vector.tolist(), 
+                            payload={"type": "text", 
+                                     "item_id":item_id, 
+                                     "description": cleaned_description, "category": metadata.get('category', '').lower(), "style": metadata.get('style', '').lower(), "season": metadata.get('season', '').lower(), "color": metadata.get('color', '').lower()
+                })
             ]
         )
 
