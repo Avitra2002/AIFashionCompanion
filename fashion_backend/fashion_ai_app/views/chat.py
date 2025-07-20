@@ -18,18 +18,26 @@ from qdrant_client.models import Filter, FieldCondition, MatchValue
 import ollama
 
 from ..firebase_utils import get_item_data_by_vector_id 
+import numpy as np
+from ..services import clip_model_chat
 
 # Constants
 CATEGORIES = ["tops", "bottoms", "dress", "shoes", "bags", "jewelry", "outerwear"]
 
 # Models
-clip_model = SentenceTransformer("sentence-transformers/clip-ViT-B-32")
+# clip_model = SentenceTransformer("sentence-transformers/clip-ViT-B-32")
 qdrant = QdrantClient(host="localhost", port=6333)
 collection_name = "closet_vectors"
 
+def normalize(vector):
+    norm = np.linalg.norm(vector)
+    if norm == 0:
+        return vector
+    return vector / norm
+
 # Helpers
 def encode_text(text):
-    return clip_model.encode(text, convert_to_numpy=True).tolist()
+    return clip_model_chat.encode(text, convert_to_numpy=True).tolist()
 
 def download_image(url):
     try:
@@ -84,7 +92,7 @@ class FashionLookChatView(APIView):
 
         try:
             # --- Embed user message ---
-            query_vector = encode_text(user_query)
+            query_vector = normalize(encode_text(user_query))
             grouped_items = defaultdict(list)
 
             for cat in CATEGORIES:
@@ -101,7 +109,7 @@ class FashionLookChatView(APIView):
                 )
                 for hit in results[:3]:
                     grouped_items[cat].append({
-                        "id": hit.id,
+                        "id": hit.payload.get("item_id", hit.id), #get the vector_id
                         "description": hit.payload.get("description", ""),
                         "category": cat
                     })
@@ -203,4 +211,7 @@ class FashionLookChatView(APIView):
             return Response(response_payloads, status=200)
 
         except Exception as e:
+            import traceback
+            print("❌ Exception in /api/chat/:", e)
+            traceback.print_exc()
             return Response({"error": str(e)}, status=500)

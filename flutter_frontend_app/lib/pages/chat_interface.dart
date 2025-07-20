@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend_app/model/chat_message.dart';
+import 'package:flutter_frontend_app/pages/lookDetail.dart';
 import 'package:flutter_frontend_app/services/api.dart';
 
 class ChatInterface extends StatefulWidget {
@@ -44,40 +45,85 @@ class _ChatInterfaceState extends State<ChatInterface> {
     }
   }
 
+  // Widget _buildLookBubble(Map<String, dynamic> look) {
+  //   final base64Str = look["collage_base64"].toString().split(',').last;
+  //   final imageBytes = base64Decode(base64Str);
+
+  //   // TODO: Add Gesture to handle when user taps on the look, go to LookDetailPage
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Image.memory(imageBytes),
+  //       const SizedBox(height: 8),
+  //       Text(
+  //         look['look_name'] ?? '',
+  //         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+  //       ),
+  //       const SizedBox(height: 4),
+  //       Text(look['description'] ?? ''),
+  //       const SizedBox(height: 8),
+  //       ElevatedButton(
+  //         onPressed: () async {
+  //           final success = await ApiService.saveLook(look);
+  //           final lookName = look['look_name'] ?? 'this look';
+
+  //           final message = success
+  //               ? '✅ Successfully saved $lookName!'
+  //               : '❌ Failed to save $lookName.';
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             SnackBar(content: Text(message)),
+  //           );
+             
+  //         },
+  //         child: const Text("Save Look"),
+  //       ),
+  //     ],
+  //   );
+  // }
+
   Widget _buildLookBubble(Map<String, dynamic> look) {
     final base64Str = look["collage_base64"].toString().split(',').last;
     final imageBytes = base64Decode(base64Str);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Image.memory(imageBytes),
-        const SizedBox(height: 8),
-        Text(
-          look['look_name'] ?? '',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(look['description'] ?? ''),
-        const SizedBox(height: 8),
-        ElevatedButton(
-          onPressed: () async {
-            final success = await ApiService.saveLook(look);
-            final lookName = look['look_name'] ?? 'this look';
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => LookDetailPage(look: look),
+          ),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Image.memory(imageBytes),
+          const SizedBox(height: 8),
+          Text(
+            look['look_name'] ?? '',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(look['description'] ?? ''),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: () async {
+              final success = await ApiService.saveLook(look);
+              final lookName = look['look_name'] ?? 'this look';
 
-            final message = success
-                ? '✅ Successfully saved $lookName!'
-                : '❌ Failed to save $lookName.';
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(message)),
-            );
-             
-          },
-          child: const Text("Save Look"),
-        ),
-      ],
+              final message = success
+                  ? '✅ Successfully saved $lookName!'
+                  : '❌ Failed to save $lookName.';
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(message)),
+              );
+            },
+            child: const Text("Save Look"),
+          ),
+        ],
+      ),
     );
   }
+
 
 
 

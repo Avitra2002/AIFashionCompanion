@@ -12,14 +12,12 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 import json
 import re
-import uuid
-from sentence_transformers import SentenceTransformer
-from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 import ollama
+from ..services import qdrant, collection_name
 
-qdrant = QdrantClient(host='localhost', port=6333)
-collection_name = "closet_vectors"
+# qdrant = QdrantClient(host='localhost', port=6333)
+# collection_name = "closet_vectors"
 dimension = 512
 
 
@@ -103,68 +101,6 @@ class ClassifyClothingView(APIView):
         else:
             raise ValueError("No valid JSON found in classification response")
 
-    # def generate_description(self, metadata: dict) -> str:
-    #     prompt = f"""
-    #     Using the following fashion item metadata, write a short product description that includes all the details: name, category, color, style, and season.
-
-    #     - Name: {metadata['name']}
-    #     - Category: {metadata['category']}
-    #     - Color: {metadata['color']}
-    #     - Style: {metadata['style']}
-    #     - Season: {metadata['season']}
-
-    #     Ensure that all fields are reflected clearly in the description and use neutral language.
-
-    #     Return only the description text without any additional formatting or JSON structure.
-    #     """
-    #     response = ollama.chat(
-    #         model='moondream:latest', #gemma3:4b
-    #         messages=[
-    #             {"role": "system", "content": "You are a fashion product description generator."},
-    #             {"role": "user", "content": prompt.strip()}
-    #         ]
-    #     )
-    #     description = response['message']['content'].strip()
-    #     lines = [line.strip() for line in description.splitlines() if line.strip()]
-    #     return lines[-1] if lines else description
-
-    # def pipeline(self,image_path: str) -> dict:
-    #     metadata = self.classify_image(image_path)
-
-    #     ##### make ASYNC #####
-    #     description = self.generate_description(metadata)
-
-    #     item_id = uuid.uuid4().hex  # unique string ID
-    #     vector = model.encode(description).tolist()
-
-    #     # TODO: Use YOLO World + MobileSAM to crop and remove background from the image
-    #     ##TODO: Use CLIP to make image vector 
-    #     # TODO: Save image vector to Qdrant
-    #     # TODO: Make text and image embedding an async background task that will not disturb UI
-
-    #     # Only save vector and id to Qdrant with minimal payload
-    #     print (f"vector_id {item_id} with vector {vector} and metadata {metadata}")
-    #     qdrant.upsert(
-    #         collection_name=collection_name,
-    #         points=[PointStruct(
-    #             id=item_id,
-    #             vector=vector,
-    #             payload={}  # empty or minimal payload here
-    #         )]
-    #     )
-        
-    #     #################################
-    #     final_item = {
-    #         'brand': '',
-    #         'name': metadata['name'].capitalize(),
-    #         'description': description, # save later to FB asynchronously
-    #         'category': metadata['category'].capitalize(),
-    #         'color': metadata['color'].capitalize(),
-    #         'style': metadata['style'].capitalize(),
-    #         'season': metadata['season'].capitalize(),
-    #         'vector_id': item_id # save later to FB asynchronously
-
-    #     }
-    #     return final_item
+    
 
 

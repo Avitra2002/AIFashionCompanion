@@ -102,18 +102,7 @@ class _AddClothingScreenState extends State<AddClothingScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                // onPressed: () {
-                //   if (_formKey.currentState!.validate()) {
-                //     widget.item.brand = brandCtrl.text;
-                //     widget.item.name = nameCtrl.text;
-                //     widget.item.color = colorCtrl.text;
-                //     // TODO: Send to Django
-                //     ScaffoldMessenger.of(context).showSnackBar(
-                //       const SnackBar(content: Text('Saved to closet!')),
-                //     );
-                //     Navigator.pop(context);
-                //   }
-                // },
+                
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     print("Form is valid");

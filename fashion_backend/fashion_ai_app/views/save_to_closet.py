@@ -6,18 +6,6 @@ from rest_framework.permissions import IsAuthenticated
 from google.cloud import firestore
 
 from ..firebase_utils import save_clothing_item_to_firestore
-# class SaveClothingItemView(APIView):
-#     def post(self, request):
-#         # Mock: print and return what was sent
-#         data = request.data
-#         print("🧥 Received clothing item:", data)
-
-#         # Return a mock success response
-#         return Response({
-#             'success': True,
-#             'message': 'Mock item saved!',
-#             'item': data
-#         }, status=status.HTTP_201_CREATED)
 
 
 

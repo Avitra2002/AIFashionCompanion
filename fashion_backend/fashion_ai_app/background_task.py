@@ -11,16 +11,14 @@ import json
 
 from fashion_ai_app.firebase_utils import update_clothing_item_in_firestore
 from qdrant_client.models import PointStruct
-
-from ultralytics import YOLOWorld, SAM
-from transformers import CLIPProcessor, CLIPModel
 import ollama
+from .services import yolo_model, clip_model, clip_processor, sam_model
 
 # Load models once
-yolo_model = YOLOWorld('yolov8s-worldv2.pt')
-sam_model = SAM('mobile_sam.pt')
-clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+# yolo_model = YOLOWorld('yolov8s-worldv2.pt')
+# sam_model = SAM('mobile_sam.pt')
+# clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+# clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 YOLO_CATEGORY_LABELS = {
     "tops": ["shirt", "t-shirt", "blouse", "tank top", "polo", "sweater"],
@@ -85,6 +83,9 @@ def encode_text_with_clip(text):
         outputs = clip_model.get_text_features(**inputs)
     return outputs[0].numpy()
 
+def normalize(vector):
+    return vector / np.linalg.norm(vector)
+
 @shared_task
 def process_clothing_item_background(image_url, metadata):
     # Step 1: Download image
@@ -110,7 +111,7 @@ def process_clothing_item_background(image_url, metadata):
         # Step 3: Encode image using CLIP
         # image_vector = encode_image_with_clip(clothing_image)
 
-        image_vector = encode_image_with_clip(clothing_image).astype(np.float32)
+        image_vector = normalize(encode_image_with_clip(clothing_image).astype(np.float32))
 
         if isinstance(metadata, str):
             try:
@@ -151,7 +152,7 @@ def process_clothing_item_background(image_url, metadata):
 
         # Step 5: Encode text using CLIP
         # text_vector = encode_text_with_clip(description)
-        text_vector = encode_text_with_clip(cleaned_description).astype(np.float32)
+        text_vector = normalize(encode_text_with_clip(cleaned_description).astype(np.float32))
 
         print("=== QDRANT UPSERT DEBUG ===")
         print("Image vector type:", type(image_vector.tolist()[0]))

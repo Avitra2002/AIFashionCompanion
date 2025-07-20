@@ -44,10 +44,10 @@ def update_clothing_item_in_firestore(uid, item_id, data):
         return False
     
 
-def get_item_data_by_vector_id(uid, vector_id_text):
-    vector_id_text = vector_id_text.replace("-", "")
+def get_item_data_by_vector_id(uid, vector_id):
+    vector_id = vector_id.replace("-", "")
     collection = db.collection("users").document(uid).collection("clothing_items")
-    docs = collection.where("vector_id_text", "==", vector_id_text).stream()
+    docs = collection.where("vector_id", "==", vector_id).stream()
     for doc in docs:
         data = doc.to_dict()
         return {
@@ -79,3 +79,27 @@ def upload_collage_image(uid, look_name, base64_str):
 def save_look_to_firestore(uid, look_data):
     doc_ref = db.collection("users").document(uid).collection("look_book").document()
     doc_ref.set(look_data)
+
+def get_item_from_firestore_by_id(uid: str, item_id: str):
+    try:
+        doc_ref = db.collection("users").document(uid).collection("clothing_items").document(item_id)
+        doc = doc_ref.get()
+
+        if doc.exists:
+            return doc.to_dict()
+        else:
+            return None
+    except Exception as e:
+        raise e
+    
+def get_look_book(uid):
+    db = firestore.client()
+    looks_ref = db.collection("users").document(uid).collection("look_book")
+    docs = looks_ref.stream()
+
+    looks = []
+    for doc in docs:
+        data = doc.to_dict()
+        data["id"] = doc.id
+        looks.append(data)
+    return looks

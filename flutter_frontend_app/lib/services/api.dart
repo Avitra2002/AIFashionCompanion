@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 ///
 //CRUD CALLS
@@ -153,5 +154,83 @@ class ApiService {
     }
   }
 
+  // 7. Get look by ID
+  static Future<Map<String, dynamic>?> getClosetItemById(String id) async {
+    final user = FirebaseAuth.instance.currentUser;
+    final idToken = await user!.getIdToken();
+
+    final url = Uri.parse('$baseUrl/api/closet-items/$id/');
+
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $idToken'},
+    );
+
+    if (response.statusCode == 200) {
+      final data =json.decode(response.body);
+      print("✅ Fetched item $id: ${data['image_url']}");
+      return Map<String,dynamic>.from(data);
+      
+    } else {
+      print('❌ Failed to fetch item $id: ${response.statusCode}');
+      return null;
+    }
+  }
+
+  // 8. Get saved looks
+  static Future<List<Map<String, dynamic>>> getSavedLooks() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final idToken = await user!.getIdToken(); 
+
+    final url = Uri.parse('$baseUrl/api/look_book/');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json', 
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((item) => Map<String, dynamic>.from(item)).toList();
+    } else {
+      print('❌ Failed to fetch saved looks: ${response.statusCode}');
+      return [];
+    }
+  }
+
+  // 9. Request Similairity Search (shopping assistant)
+  static Future<Map<String, dynamic>?> uploadImageWithCategory({
+  required XFile imageFile,
+  required String category,
+  }) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("❌ No user is logged in.");
+      return null;
+    }
+
+    final idToken = await user.getIdToken();
+    final uid = user.uid;
+
+    final uri = Uri.parse('$baseUrl/api/similarity-search/');
+
+    var request = http.MultipartRequest('POST', uri)
+      ..fields['category'] = category
+      ..fields['uid'] = uid
+      ..headers['Authorization'] = 'Bearer $idToken'
+      ..files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print("❌ Upload failed: ${response.statusCode} - ${response.body}");
+      return null;
+    }
+  }
 
 }

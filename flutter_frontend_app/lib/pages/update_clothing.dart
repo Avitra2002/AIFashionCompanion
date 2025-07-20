@@ -63,7 +63,7 @@ class _UpdateClothingScreenState extends State<UpdateClothingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Update Clothing')),
+      appBar: AppBar(title: const Text(' Clothing Item')),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -113,23 +113,23 @@ class _UpdateClothingScreenState extends State<UpdateClothingScreen> {
                 ),
                 const SizedBox(height: 100),
 
-                Center(
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
-                    child: ElevatedButton(
-                      onPressed: () {
-                         // TODO: Implement to create look
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.lightBlueAccent,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text('Create Look with This Item',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                    ),
-                  )
-                )
+                // Center(
+                //   child: SizedBox(
+                //     width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+                //     child: ElevatedButton(
+                //       onPressed: () {
+                //          // TODO: Implement to create look
+                //       },
+                //       style: ElevatedButton.styleFrom(
+                //         backgroundColor: Colors.lightBlueAccent,
+                //         padding: const EdgeInsets.symmetric(vertical: 14),
+                //       ),
+                //       child: const Text('Create Look with This Item',
+                //         style: TextStyle(fontSize: 16, color: Colors.white),
+                //       ),
+                //     ),
+                //   )
+                // )
 
               ],
             ),

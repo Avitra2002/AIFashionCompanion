@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_frontend_app/model/lookcard.dart';
+import 'package:flutter_frontend_app/services/api.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
@@ -19,6 +21,9 @@ class HomePage extends StatefulWidget {
     String? _location;
     String? _temp;
     String? _condition;
+    List<dynamic> _chillLooks = [];
+    List<dynamic> _dressyLooks = [];
+
 
     @override
     void initState() {
@@ -45,7 +50,7 @@ class HomePage extends StatefulWidget {
 
       final apiKey = dotenv.env['OPENWEATHER_API_KEY'];
       final url =
-        //for current weather data , but emulator is only able to pick up San Jose despite location change
+        //TODO: for current weather data , but emulator is only able to pick up San Jose despite location change
           // 'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&units=metric&appid=$apiKey';
 
         //hard corded lat long for now
@@ -66,6 +71,37 @@ class HomePage extends StatefulWidget {
       }
     }
 
+    Future<void> _generateHomepageLooks() async {
+      try {
+        final tempValue = double.tryParse(_temp ?? '')?.round();
+        final tempDisplay = tempValue != null ? tempValue.toString() : '--';
+
+        final chillPrompt = "chill everyday look for $tempDisplay degrees and $_condition weather";
+        final dressyPrompt = "put together and dressy look for $tempDisplay degrees and $_condition weather";
+        // TODO: Running both API calls in parallel
+
+
+        // final results = await Future.wait([
+        //   ApiService.chatWithAI(chillPrompt),
+        //   ApiService.chatWithAI(dressyPrompt),
+        // ]);
+
+        // final chillLooks = results[0];
+        // final dressyLooks = results[1];
+        print ("Sending look request");
+        // Running sequentially due to limited resources
+        final chillLooks = await ApiService.chatWithAI(chillPrompt);
+        final dressyLooks = await ApiService.chatWithAI(dressyPrompt);
+
+        setState(() {
+          _chillLooks = chillLooks;
+          _dressyLooks = dressyLooks;
+        });
+      } catch (e) {
+        print('❌ Failed to generate homepage looks: $e');
+      }
+    }
+
 
     Future<void> _loadData() async {
       final now = DateTime.now();
@@ -82,6 +118,7 @@ class HomePage extends StatefulWidget {
           _condition = weather['condition'];
           _location = weather['location'];
         });
+        await _generateHomepageLooks();
       } catch (e) {
         setState(() {
           _date = formattedDate;
@@ -103,7 +140,8 @@ class HomePage extends StatefulWidget {
           backgroundColor: Colors.white,
         ),
         backgroundColor: Colors.white,
-        body: Padding(
+        body: SafeArea(child: SingleChildScrollView (
+        child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,28 +181,38 @@ class HomePage extends StatefulWidget {
             
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text(
-                    "Chill look",
+                    "Chill Everyday look",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  Icon(Icons.refresh), // 
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: _generateHomepageLooks,
+                  ), 
                 ],
               ),
 
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(child: Text("Outfit suggestion goes here")),
-                ),
+              SizedBox(
+                height: 320,
+                child: _chillLooks.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _chillLooks.length,
+                        itemBuilder: (context, index) {
+                          final look = _chillLooks[index];
+                          return LookCard(
+                            lookData: look,
+                            lookName: look['look_name'],
+                            description: look['description'],
+                            collageBase64: look['collage_base64'],
+                          );
+                        },
+                      ),
               ),
 
-            
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
@@ -172,27 +220,36 @@ class HomePage extends StatefulWidget {
                     "Dress for the occasion",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  Icon(Icons.refresh),
+                  // Icon(Icons.refresh),
                 ],
               ),
 
               const SizedBox(height: 12),
 
               
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(child: Text("Outfit suggestion goes here")),
-                ),
+              SizedBox(
+                height: 320,
+                child: _dressyLooks.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _dressyLooks.length ,
+                        itemBuilder: (context, index) {
+                          final look = _dressyLooks[index];
+                          return LookCard(
+                            lookData: look,
+                            lookName: look['look_name'],
+                            description: look['description'],
+                            collageBase64: look['collage_base64'],
+                          );
+                        },
+                      ),
               ),
             ],
           ),
         ),
+        )
+        )
       );
     }
   }

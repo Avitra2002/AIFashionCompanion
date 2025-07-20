@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend_app/model/clothing_item.dart';
+import 'package:flutter_frontend_app/pages/LookBook.dart';
 import 'package:flutter_frontend_app/pages/update_clothing.dart';
 import 'package:image_picker/image_picker.dart';
 import '../model/category.dart';
@@ -174,7 +175,10 @@ class _ClosetPageState extends State<ClosetPage> {
       appBar: AppBar(
         title: const Text('Closet'),
         actions: [
-          IconButton(icon: const Icon(Icons.bookmark_border), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.bookmark_border), onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_)=> const LookBookPage()),
+            );
+          }),
           IconButton(icon: const Icon(Icons.filter_list), onPressed: _showFilterBottomSheet),
         ],
       ),
@@ -401,6 +405,17 @@ class _ClosetPageState extends State<ClosetPage> {
                 },
                 child: const Text('Apply Filters'),
               ),
+              const SizedBox(height:8),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    selectedBrand = null;
+                    selectedColor = null;
+                  });
+                  // Navigator.pop(context);
+                },
+                child: const Text('Reset Filters'),
+              )
             ],
           ),
         );
