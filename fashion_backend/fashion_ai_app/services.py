@@ -8,6 +8,7 @@ from ultralytics import YOLOWorld, SAM
 clip_model_chat = SentenceTransformer("sentence-transformers/clip-ViT-B-32")
 qdrant = QdrantClient(host="localhost", port=6333)
 collection_name = "closet_vectors"
+look_book_collection = "look_book"
 
 if not qdrant.collection_exists(collection_name):
     qdrant.create_collection(

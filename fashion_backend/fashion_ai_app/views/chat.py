@@ -19,15 +19,15 @@ import ollama
 
 from ..firebase_utils import get_item_data_by_vector_id 
 import numpy as np
-from ..services import clip_model_chat
+from ..services import clip_model_chat, qdrant, collection_name
 
 # Constants
 CATEGORIES = ["tops", "bottoms", "dress", "shoes", "bags", "jewelry", "outerwear"]
 
 # Models
 # clip_model = SentenceTransformer("sentence-transformers/clip-ViT-B-32")
-qdrant = QdrantClient(host="localhost", port=6333)
-collection_name = "closet_vectors"
+# qdrant = QdrantClient(host="localhost", port=6333)
+# collection_name = "closet_vectors"
 
 def normalize(vector):
     norm = np.linalg.norm(vector)
