@@ -24,7 +24,7 @@ class ClothingItem(models.Model):
 from rest_framework import serializers
 
 class ClothingItemSerializer(serializers.ModelSerializer):
-    ## convert ClothingItem instances to JSON and vice versa.
+    
     class Meta:
         model = ClothingItem
         fields = '__all__'

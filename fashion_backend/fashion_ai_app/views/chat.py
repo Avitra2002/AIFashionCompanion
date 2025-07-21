@@ -78,7 +78,6 @@ def parse_llm_json_block(raw_text):
         raw_text = raw_text.removesuffix("```")
     return json.loads(raw_text.strip())
 
-# Main API View
 class FashionLookChatView(APIView):
     permission_classes = [AllowAny]
     parser_classes = [JSONParser]

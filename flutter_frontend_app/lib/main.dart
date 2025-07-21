@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'services/firebase_auth.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import '../routes/app_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final _appRouter = AppRouter(); // Define the AppRouter instance
 
@@ -45,16 +46,44 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Fashion Companion AI',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 165, 209, 246),
-          primary: Colors.black,
-          secondary: Colors.white,
-          tertiary: const Color.fromARGB(255, 193, 236, 194),
+        colorScheme: ColorScheme.light(
+          primary:Color(0xFFE6E6FA),
+          secondary: Color.fromARGB(255, 251, 234, 241),
+          tertiary: Color(0xFFE6E6FA),
+          // background: Color(0xFFFAF8FF),
+          surface: Colors.grey[900]!,
+          onPrimary: Colors.black,
+          onSecondary: Colors.black,
+          onBackground: Colors.black,
+          onSurface: Color.fromARGB(255, 251, 234, 241),
+
         ),
         useMaterial3: true,
-        fontFamily: 'Romaine',
+        fontFamily: 'Nunito',
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          )
+        ),
+        textTheme: GoogleFonts.nunitoTextTheme(
+          Theme.of(context).textTheme.copyWith(
+            bodyMedium: TextStyle(fontSize: 16, color: Colors.black),
+            headlineMedium: TextStyle(fontSize: 18, color:Colors.black, fontWeight: FontWeight.bold),
+            titleLarge: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
+            titleMedium: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.black),
+            bodySmall: TextStyle(fontSize: 14, color: const Color.fromARGB(255, 51, 51, 51))
+            
+          ),
+        ),
+    
       ),
-      routerConfig: _appRouter.config(), // ✅ This activates auto_route
+      routerConfig: _appRouter.config(), 
     );
   }
 }

@@ -12,19 +12,32 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: Colors.lightBlueAccent,
-      selectedItemColor: Colors.black,
+    return Column(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    // Top divider line
+    Container(
+      height: 1,
+      color: Theme.of(context).colorScheme.tertiary,
+    ),
+    // Actual BottomNavigationBar
+    BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      selectedItemColor: Theme.of(context).colorScheme.onPrimary,
       unselectedItemColor: Colors.blueGrey,
       currentIndex: currentIndex,
       onTap: onTap,
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home),label: 'Home',),
-        BottomNavigationBarItem(icon: Icon(Icons.checkroom),label: 'Closet',),
-        BottomNavigationBarItem(icon: Icon(Icons.chat),label: 'AI Chat',),
-        BottomNavigationBarItem(icon: Icon(Icons.shopping_cart),label: 'Shopping List',),
-        BottomNavigationBarItem(icon: Icon(Icons.person),label: 'Profile',),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.checkroom), label: 'Closet'),
+        BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'AI Chat'),
+        BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Shopping'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
+    ),
+  ],
     );
   }
 }

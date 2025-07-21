@@ -14,10 +14,10 @@ class SaveClothingItemView(APIView):
     def post(self, request):
         serializer = ClothingItemSerializer(data=request.data)
         if serializer.is_valid():
-            #Save to Django DB
+            
             instance = serializer.save(user=request.user)
 
-            # Prepare Firestore data
+           
             firestore_data = serializer.data
             firestore_data["id"] = str(instance.id)
             firestore_data["date"] = firestore.SERVER_TIMESTAMP  # Use Firestore timestamp
@@ -25,7 +25,7 @@ class SaveClothingItemView(APIView):
             
             firebase_uid = request.user.username 
 
-            # nested Firestore path
+            
             save_clothing_item_to_firestore(firestore_data, firebase_uid)
 
             print('Scheduling background task for clothing item processing...')

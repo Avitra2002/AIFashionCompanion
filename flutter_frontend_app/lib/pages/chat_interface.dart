@@ -45,41 +45,6 @@ class _ChatInterfaceState extends State<ChatInterface> {
     }
   }
 
-  // Widget _buildLookBubble(Map<String, dynamic> look) {
-  //   final base64Str = look["collage_base64"].toString().split(',').last;
-  //   final imageBytes = base64Decode(base64Str);
-
-  //   // TODO: Add Gesture to handle when user taps on the look, go to LookDetailPage
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Image.memory(imageBytes),
-  //       const SizedBox(height: 8),
-  //       Text(
-  //         look['look_name'] ?? '',
-  //         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-  //       ),
-  //       const SizedBox(height: 4),
-  //       Text(look['description'] ?? ''),
-  //       const SizedBox(height: 8),
-  //       ElevatedButton(
-  //         onPressed: () async {
-  //           final success = await ApiService.saveLook(look);
-  //           final lookName = look['look_name'] ?? 'this look';
-
-  //           final message = success
-  //               ? '✅ Successfully saved $lookName!'
-  //               : '❌ Failed to save $lookName.';
-  //           ScaffoldMessenger.of(context).showSnackBar(
-  //             SnackBar(content: Text(message)),
-  //           );
-             
-  //         },
-  //         child: const Text("Save Look"),
-  //       ),
-  //     ],
-  //   );
-  // }
 
   Widget _buildLookBubble(Map<String, dynamic> look) {
     final base64Str = look["collage_base64"].toString().split(',').last;
@@ -148,7 +113,7 @@ class _ChatInterfaceState extends State<ChatInterface> {
                   constraints: const BoxConstraints(maxWidth: 320),
                   decoration: BoxDecoration(
                     color: isUser
-                        ? Colors.blueAccent
+                        ? Theme.of(context).colorScheme.primary
                         : Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -157,7 +122,7 @@ class _ChatInterfaceState extends State<ChatInterface> {
                       : Text(
                           msg.text ?? '',
                           style: TextStyle(
-                            color: isUser ? Colors.white : Colors.black87,
+                            color: isUser ? Theme.of(context).colorScheme.onPrimary : Colors.black87,
                           ),
                         ),
                 ),
@@ -178,16 +143,33 @@ class _ChatInterfaceState extends State<ChatInterface> {
               Expanded(
                 child: TextField(
                   controller: _controller,
-                  decoration: const InputDecoration(
+                  decoration:InputDecoration(
                     hintText: "Type in an ocassion you want to dress for...",
-                    border: OutlineInputBorder(),
+                    hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                    labelStyle: Theme.of(context).textTheme.bodyMedium,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.onSecondary),
+                    ),
+                    
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.onSecondary),
+                    ),
+                    
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        width: 1, 
+                      ),
+                    ),
                   ),
                   onSubmitted: (_) => _sendMessage(),
                 ),
               ),
               const SizedBox(width: 8),
               IconButton(
-                icon: const Icon(Icons.send),
+                icon: const Icon(Icons.send,color: Colors.black,),
                 onPressed: _isSending ? null : _sendMessage,
               ),
             ],

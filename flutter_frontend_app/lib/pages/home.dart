@@ -135,122 +135,177 @@ class HomePage extends StatefulWidget {
     Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-          toolbarHeight: 0, // Hide default AppBar height
+          toolbarHeight: 0,
           elevation: 0,
-          backgroundColor: Colors.white,
+          
         ),
-        backgroundColor: Colors.white,
-        body: SafeArea(child: SingleChildScrollView (
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        
+        body: Stack(
             children: [
-
-            
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        _date ?? 'Loading...',
-                        style: const TextStyle(fontSize: 16,),
-                      ),
-                    ],
+              // Background pink 
+              Container(
+                height: 240,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary, // Soft pink
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(32),
+                    bottomRight: Radius.circular(32),
                   ),
-                  Row(
-                    children: [
-                      Text("Looks for ${_temp ?? '--'}° "),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.location_on, color: Colors.orange),
-                      Text (_location ?? ''),
-                      const SizedBox(width: 4),
-                      Text(_condition ?? '',
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-
-              const SizedBox(height: 20),
-
-            
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Chill Everyday look",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: _generateHomepageLooks,
-                  ), 
-                ],
-              ),
-
-              SizedBox(
-                height: 320,
-                child: _chillLooks.isEmpty
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _chillLooks.length,
-                        itemBuilder: (context, index) {
-                          final look = _chillLooks[index];
-                          return LookCard(
-                            lookData: look,
-                            lookName: look['look_name'],
-                            description: look['description'],
-                            collageBase64: look['collage_base64'],
-                          );
-                        },
-                      ),
-              ),
-
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    "Dress for the occasion",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  // Icon(Icons.refresh),
-                ],
-              ),
-
-              const SizedBox(height: 12),
 
               
-              SizedBox(
-                height: 320,
-                child: _dressyLooks.isEmpty
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _dressyLooks.length ,
-                        itemBuilder: (context, index) {
-                          final look = _dressyLooks[index];
-                          return LookCard(
-                            lookData: look,
-                            lookName: look['look_name'],
-                            description: look['description'],
-                            collageBase64: look['collage_base64'],
-                          );
-                        },
+              SafeArea(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 32),
+
+                      // Weather Info
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.calendar_today, size: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                  const SizedBox(width: 6),
+                                  Text(_date ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSecondary)),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.wb_sunny, color: Colors.orangeAccent),
+                                  const SizedBox(width: 2),
+                                  Text("${_temp ?? '--'}° | $_condition ", style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
+                                  const SizedBox(width: 4),
+                                   Icon(Icons.location_on, color: Theme.of(context).colorScheme.onSecondary),
+                                  const SizedBox(width: 2),
+                                  Text(_location ?? '', style: TextStyle(color: Theme.of(context).colorScheme.onSecondary)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      
+
+                      const SizedBox(height: 16),
+
+                      
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Hello There!",
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.onPrimary,
+                                ),
+                          ),
+                        ),
                       ),
-              ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Here are some outfits you can wear today based on the weather and location!",
+                            style: Theme.of(context).textTheme.bodySmall
+                                ),
+                          ),
+                        ),
+                      
+
+                      const SizedBox(height: 24),
+
+                      // White container
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).appBarTheme.backgroundColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(32),
+                            topRight: Radius.circular(32),
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "😎 Chill Everyday look",
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSecondary),
+                                  onPressed: _generateHomepageLooks,
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(
+                              height: 320,
+                              child: _chillLooks.isEmpty
+                                  ? const Center(child: CircularProgressIndicator())
+                                  : ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: _chillLooks.length,
+                                      itemBuilder: (context, index) {
+                                        final look = _chillLooks[index];
+                                        return LookCard(
+                                          lookData: look,
+                                          lookName: look['look_name'],
+                                          description: look['description'],
+                                          collageBase64: look['collage_base64'],
+                                        );
+                                      },
+                                    ),
+                            ),
+
+                            const SizedBox(height: 20),
+                            Text(
+                              "🍷 Dress for the occasion",
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              height: 320,
+                              child: _dressyLooks.isEmpty
+                                  ? const Center(child: CircularProgressIndicator())
+                                  : ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: _dressyLooks.length,
+                                      itemBuilder: (context, index) {
+                                        final look = _dressyLooks[index];
+                                        return LookCard(
+                                          lookData: look,
+                                          lookName: look['look_name'],
+                                          description: look['description'],
+                                          collageBase64: look['collage_base64'],
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+        )
             ],
-          ),
-        ),
-        )
-        )
+      )
       );
+      
+
     }
   }
 

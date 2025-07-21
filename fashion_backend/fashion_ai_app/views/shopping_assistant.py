@@ -77,10 +77,10 @@ class SimilaritySearchAPIView(APIView):
             if extracted_image is None:
                 return Response({'error': 'No clothing item detected'}, status=400)
 
-            # Convert to PIL
+            
             extracted_pil = PILImage.fromarray(cv2.cvtColor(extracted_image, cv2.COLOR_BGR2RGB))
 
-            # Encode with CLIP + Normalize
+            
             vector = self.normalize(self.encode_image_with_clip_pil(extracted_pil))
 
             # Search Qdrant
@@ -96,7 +96,13 @@ class SimilaritySearchAPIView(APIView):
                             'firestore_id':item_data['firestore_id'],
                             'name': item_data['name'],
                             'image_url': item_data['image_url'],
-                            'score': round(r.score,2)
+                            'score': round(r.score,2),
+                            'brand': item_data['brand'],
+                            'color': item_data['color'],
+                            'style': item_data['style'],
+                            'season': item_data['season'],
+                            'category': item_data['category']
+
                         
                         })
 

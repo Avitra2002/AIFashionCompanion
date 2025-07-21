@@ -37,11 +37,16 @@ class LookCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.tertiary,
+            width: 2
+          ),
+          boxShadow:[
             BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
+              color: Theme.of(context).colorScheme.secondary.withAlpha(80),
+              blurRadius: 30,
+              spreadRadius: 5,
               offset: Offset(0, 4),
             )
           ],
@@ -55,13 +60,12 @@ class LookCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     lookName,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16
-                  ),
+                    style: Theme.of(context).textTheme.headlineMedium,
                   overflow: TextOverflow.ellipsis,
                   ),
                 ),
               IconButton(
-                icon: const Icon(Icons.bookmark_border),
+                icon: const Icon(Icons.bookmark_border,color: Colors.black,),
                 onPressed: () async {
                   final success = await ApiService.saveLook(lookData!);
                   final message = success
@@ -79,8 +83,8 @@ class LookCard extends StatelessWidget {
               description,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.grey),
-            ),
+              style: Theme.of(context).textTheme.bodySmall),
+            
             const SizedBox(height: 6),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),

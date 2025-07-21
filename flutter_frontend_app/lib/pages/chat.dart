@@ -23,6 +23,7 @@ class _ChatPageState extends State<ChatPage> {
     Category.bottoms,
     Category.shoes,
   ];
+  final minAmount = 8;
 
 
   @override
@@ -48,7 +49,7 @@ class _ChatPageState extends State<ChatPage> {
 
   bool hasMinimumRequiredItems(Map<Category, List<ClothingItem>> groupedItems) {
     for (var category in requiredCategories) {
-      if (!groupedItems.containsKey(category) || groupedItems[category]!.length < 3) {
+      if (!groupedItems.containsKey(category) || groupedItems[category]!.length < minAmount) {
         return false;
       }
     }
@@ -57,66 +58,125 @@ class _ChatPageState extends State<ChatPage> {
 
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('AI Stylist Chat')),
-      body: FutureBuilder<List<ClothingItem>>(
-        future: _itemsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(toolbarHeight: 0, elevation: 0),
+    body: FutureBuilder<List<ClothingItem>>(
+          future: _itemsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
 
-          final items = snapshot.data!;
-          final grouped = groupItemsByCategory(items);
-          final isEligible = hasMinimumRequiredItems(grouped);
+            final items = snapshot.data!;
+            final grouped = groupItemsByCategory(items);
+            final isEligible = hasMinimumRequiredItems(grouped);
 
-          return isEligible
-              ? const ChatInterface()
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
+            return Stack(
+              children: [
+                Container(
+                  height: 240,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(32),
+                      bottomRight: Radius.circular(32),
+                    ),
+                  ),
+                ),
+                SafeArea(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'You need at least 3 Tops, 3 Bottoms, and 3 Pairs of Shoes to use the AI stylist.',
-                        style: TextStyle(fontSize: 16),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-                      ...requiredCategories.map((category) {
-                        final count = grouped[category]?.length ?? 0;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${categoryLabel(category)}: $count / 3',
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                            LinearProgressIndicator(
-                              value: (count / 3).clamp(0.0, 1.0),
-                              minHeight: 8,
-                            ),
-                            const SizedBox(height: 16),
-                          ],
-                        );
-                      }),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            context.pushRoute(const ClosetRoute());
-                          },
-                          child: const Text('Add More Clothing'),
+                      const SizedBox(height: 32),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "AI Stylist Chat",
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSecondary,
+                                ),
+                          ),
                         ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Need help to put an outfit together for an occasion? Just type in the occasion!',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Main content container
+                      Expanded(
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(32),
+                              topRight: Radius.circular(32),
+                            ),
+                          ),
+                          child: isEligible
+                              ? const ChatInterface()
+                              : SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text(
+                                        'You need at least $minAmount Tops, $minAmount Bottoms, and $minAmount Pairs of Shoes to use the AI stylist.',
+                                        style: const TextStyle(fontSize: 16),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 24),
+                                      ...requiredCategories.map((category) {
+                                        final count = grouped[category]?.length ?? 0;
+                                        return Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${categoryLabel(category)}: $count / $minAmount',
+                                              style: const TextStyle(fontSize: 14),
+                                            ),
+                                            LinearProgressIndicator(
+                                              value: (count / minAmount).clamp(0.0, 1.0),
+                                              minHeight: 8,
+                                            ),
+                                            const SizedBox(height: 16),
+                                          ],
+                                        );
+                                      }),
+                                      const SizedBox(height: 16),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          context.pushRoute(const ClosetRoute());
+                                        },
+                                        child: const Text('Add More Clothing'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                        ),
+                      ),
                     ],
                   ),
+                ),
+              ],
+            );
+          },
+        ),
+  );
+}
 
-                    );
-            }),
-        );
-  }
 }

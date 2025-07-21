@@ -10,7 +10,11 @@ class GetClothingItemsView(APIView):
     def get(self, request):
         uid = request.user.username 
         try:
+            print("👤 Authenticated Django user:", request.user)
+            print("🧾 UID passed to Firestore:", uid)
+
             items = get_clothing_items_from_firestore(uid)
+            
             return Response(items, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -63,79 +63,153 @@ class _UpdateClothingScreenState extends State<UpdateClothingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(' Clothing Item')),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
-                const SizedBox(height: 10),
-                TextField(controller: brandController, decoration: const InputDecoration(labelText: 'Brand')),
-                const SizedBox(height: 10),
-                TextField(controller: colorController, decoration: const InputDecoration(labelText: 'Color')),
-                const SizedBox(height: 10),
-                TextField(controller: styleController, decoration: const InputDecoration(labelText: 'Style')),
-                const SizedBox(height: 10),
-                TextField(controller: seasonController, decoration: const InputDecoration(labelText: 'Season')),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<Category>(
-                  value: selectedCategory,
-                  items: Category.values.map((category) {
-                    return DropdownMenuItem<Category>(
-                      value: category,
-                      child: Text(categoryLabel(category)),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedCategory = value;
-                      });
-                    }
-                  },
-                  decoration: const InputDecoration(labelText: 'Category'),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
-                  child: ElevatedButton(
-                    onPressed: _updateItem,
-                    style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text('Update Item'),
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.black),
+                    onPressed: () => Navigator.pop(context),
                   ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Update Clothing Item',
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
-                ),
-                const SizedBox(height: 100),
-
-                // Center(
-                //   child: SizedBox(
-                //     width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
-                //     child: ElevatedButton(
-                //       onPressed: () {
-                //          // TODO: Implement to create look
-                //       },
-                //       style: ElevatedButton.styleFrom(
-                //         backgroundColor: Colors.lightBlueAccent,
-                //         padding: const EdgeInsets.symmetric(vertical: 14),
-                //       ),
-                //       child: const Text('Create Look with This Item',
-                //         style: TextStyle(fontSize: 16, color: Colors.white),
-                //       ),
-                //     ),
-                //   )
-                // )
-
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+
+            // Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextField(controller: nameController, decoration: InputDecoration(labelText: 'Name',labelStyle: Theme.of(context).textTheme.titleMedium),style: Theme.of(context).textTheme.bodyMedium,),
+                      const SizedBox(height: 10),
+                      TextField(controller: brandController, decoration: InputDecoration(labelText: 'Brand',labelStyle: Theme.of(context).textTheme.titleMedium),style: Theme.of(context).textTheme.bodyMedium,),
+                      const SizedBox(height: 10),
+                      TextField(controller: colorController, decoration: InputDecoration(labelText: 'Color',labelStyle: Theme.of(context).textTheme.titleMedium),style: Theme.of(context).textTheme.bodyMedium,),
+                      const SizedBox(height: 10),
+                      DropdownButtonFormField<String>(
+                        value: styleController.text.isNotEmpty ? styleController.text : null,
+                        dropdownColor:Theme.of(context).colorScheme.secondary ,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSecondary, 
+                        ),
+                        items: styles.map((style) {
+                          return DropdownMenuItem<String>(
+                            value: style,
+                            child: Text(style, style: Theme.of(context).textTheme.bodyMedium),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              styleController.text = value;
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Style',
+                          labelStyle: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      DropdownButtonFormField<String>(
+                        value: seasonController.text.isNotEmpty ? seasonController.text : null,
+                        dropdownColor:Theme.of(context).colorScheme.secondary ,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSecondary, 
+                        ),
+                        items: seasons.map((season) {
+                          return DropdownMenuItem<String>(
+                            value: season,
+                            child: Text(season, style: Theme.of(context).textTheme.bodyMedium),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              seasonController.text = value;
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Season',
+                          labelStyle: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+                      DropdownButtonFormField<Category>(
+                        value: selectedCategory,
+                        dropdownColor:Theme.of(context).colorScheme.secondary ,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSecondary, 
+                        ),
+                        items: Category.values.where((category) =>
+                            categoryLabel(category) != 'All' &&
+                            categoryLabel(category) != 'Newest First')
+                          .map((category) {
+                          return DropdownMenuItem<Category>(
+                            value: category,
+                            child: Text(categoryLabel(category),style:Theme.of(context).textTheme.bodyMedium,),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              selectedCategory = value;
+                            });
+                          }
+                        },
+                        decoration: InputDecoration(labelText: 'Category',labelStyle: Theme.of(context).textTheme.titleMedium),
+                      ),
+                      const SizedBox(height: 20),
+                      Center(
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          child: ElevatedButton(
+                            onPressed: _updateItem,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: const Text('Update Item'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+
+
 }

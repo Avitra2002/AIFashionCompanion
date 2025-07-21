@@ -86,7 +86,6 @@ class _LookDetailPageState extends State<LookDetailPage> {
         };
       });
 
-      // Attach it back to look
       look['items'] = items;
     }
   }
@@ -132,7 +131,7 @@ class _LookDetailPageState extends State<LookDetailPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.look['look_name'] ?? 'Look Detail')),
+      appBar: AppBar(title: Text(widget.look['look_name'] ?? 'Look Detail',style: Theme.of(context).textTheme.titleLarge,)),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -163,26 +162,64 @@ class _LookDetailPageState extends State<LookDetailPage> {
 
 
   Widget _buildItemCard(Map<String, dynamic> item) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () {
-          // 👇 Navigate to item details screen
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => UpdateClothingScreen(item: item), // Pass item
+  return Card(
+    margin: const EdgeInsets.only(bottom: 12),
+    child: InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => UpdateClothingScreen(item: item),
+          ),
+        );
+      },
+      child: SizedBox(
+        height: 100,
+        child: Row(
+          children: [
+            // Image or fallback
+            item['image_url'] != null
+                ? ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
+                    child: Image.network(
+                      item['image_url'],
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Container(
+                    width: 100,
+                    height: 100,
+                    color: Colors.grey[300],
+                    child: Center(
+                      child: Text(
+                        item['name']?[0] ?? '?',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                      ),
+                    ),
+                  ),
+
+            const SizedBox(width: 12),
+
+            
+            Expanded(
+              child: Text(
+                item['name'] ?? 'Unnamed item',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          );
-        },
-        child: ListTile(
-          leading: item['image_url'] != null
-              ? Image.network(item['image_url'], width: 50, height: 50, fit: BoxFit.cover)
-              : CircleAvatar(child: Text(item['name']?[0] ?? '?')),
-          title: Text(item['name'] ?? 'Unnamed item'),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
+
+}

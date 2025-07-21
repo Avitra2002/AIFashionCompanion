@@ -39,7 +39,9 @@ class _ClosetPageState extends State<ClosetPage> {
     try {
       final result = await ApiService.getClosetItems();
       setState(() {
+
         allClothes = List<Map<String, dynamic>>.from(result);
+        print('👕 Clothes fetched: $result');
       });
     } catch (e) {
       print('❌ Failed to fetch clothes: $e');
@@ -110,7 +112,7 @@ class _ClosetPageState extends State<ClosetPage> {
 
     final result = await ApiService.uploadAndClassifyImage(imageURL);
 
-    // ✅ Declare item first
+    
     late ClothingItem item;
 
     if (result != null) {
@@ -169,52 +171,128 @@ class _ClosetPageState extends State<ClosetPage> {
 
 
 ///MAIN BUILD 
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Closet'),
-        actions: [
-          IconButton(icon: const Icon(Icons.bookmark_border), onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_)=> const LookBookPage()),
-            );
-          }),
-          IconButton(icon: const Icon(Icons.filter_list), onPressed: _showFilterBottomSheet),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text('Current closet items: ${allClothes.length}',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Center(
-              child: ElevatedButton(
-                onPressed: _onAddClothingPressed,
-                child: const Text('+ Add to closet'),
+          // Pink container
+          Container(
+            height: 250,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.secondary,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(32),
+                bottomRight: Radius.circular(32),
               ),
             ),
           ),
-          _buildCategoryChips(),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text('Items'),
+
+          // Main content
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Closet',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        IconButton(
+                          icon:  Icon(Icons.bookmark_border, color: Theme.of(context).colorScheme.onPrimary,),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const LookBookPage()),
+                            );
+                          },
+                        ),
+                        
+                      ],
+                    ),
+                    
+                  ),
+                  // Clothing item count
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Current closet items: ${allClothes.length}',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12,),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _onAddClothingPressed,
+                      child: const Text('+ Add to closet'),
+                    ),
+                  ),
+                
+
+                
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 24),
+                      decoration:BoxDecoration(
+                        color: Theme.of(context).appBarTheme.backgroundColor,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(32),
+                          topRight: Radius.circular(32),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            
+                            _buildCategoryChips(),
+
+                            const SizedBox(height: 8),
+
+                            //filter button
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Items',
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.filter_list, color: Theme.of(context).colorScheme.onPrimary,),
+                                  onPressed: _showFilterBottomSheet,
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            // Grid expands to fill remaining space
+                            Expanded(
+                              child: _buildClothesGrid(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+            
+                ],
+              ),
+            ),
           ),
-          Expanded(child: _buildClothesGrid()),
         ],
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   currentIndex: 1,
-      //   items: const [
-      //     BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-      //     BottomNavigationBarItem(icon: Icon(Icons.checkroom), label: 'Closet'),
-      //     BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Shopping'),
-      //   ],
-      // ),
     );
   }
 
@@ -229,7 +307,7 @@ class _ClosetPageState extends State<ClosetPage> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: ChoiceChip(
-              label: Text(category),
+              label: Text(category, style: TextStyle(color: isSelected ?Theme.of(context).colorScheme.onSecondary : Theme.of(context).colorScheme.secondary) ),
               selected: isSelected,
               onSelected: (_) {
                 setState(() {
@@ -312,19 +390,44 @@ class _ClosetPageState extends State<ClosetPage> {
           },
         
         
-        child: Card(
-          child: Column(
-            children: [
-              Expanded(
-                child: Image.network(item['image_url']!, fit: BoxFit.cover),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.secondary,
+                width: 2,
               ),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Text(item['brand'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ],
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.secondary.withAlpha(80),
+                  blurRadius: 30,
+                  spreadRadius: 5,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      item['image_url']!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  item['name'] ?? '',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
-          )
         );
       },
     );
@@ -355,71 +458,136 @@ class _ClosetPageState extends State<ClosetPage> {
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        
       ),
+      
       builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Filter Closet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
+        return ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Filter Closet', 
+                style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 10),
 
-              DropdownButtonFormField<String>(
-                value: selectedBrand,
-                hint: const Text('Select Brand'),
-                items: availableBrands
-                    .map((brand) => DropdownMenuItem(
-                          value: brand,
-                          child: Text(brand),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() => selectedBrand = value);
-                },
-                isExpanded: true,
-              ),
+                DropdownButtonFormField<String>(
+                  value: selectedBrand,
+                  hint: Text(
+                    'Select Brand',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSecondary
+                        ),
+                  ),
+                  dropdownColor: Theme.of(context).colorScheme.secondary, 
+                  iconEnabledColor: Theme.of(context).colorScheme.secondary, 
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSecondary, 
+                  ),
+                  decoration: InputDecoration(
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.onSecondary, width: 2),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.onSecondary, width: 2),
+                    ),
+                  ),
+                  items: availableBrands.map((brand) {
+                    return DropdownMenuItem<String>(
+                      value: brand,
+                      child: Text(
+                        brand,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() => selectedBrand = value);
+                  },
+                  isExpanded: true,
+                ),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-              DropdownButtonFormField<String>(
-                value: selectedColor,
-                hint: const Text('Select Color'),
-                items: availableColors
-                    .map((color) => DropdownMenuItem(
-                          value: color,
-                          child: Text(color),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() => selectedColor = value);
-                },
-                isExpanded: true,
-              ),
+                DropdownButtonFormField<String>(
+                  value: selectedColor,
+                  hint: Text(
+                    'Select Color',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSecondary
+                        ),
+                  ),
+                  dropdownColor: Theme.of(context).colorScheme.secondary, 
+                  iconEnabledColor: Theme.of(context).colorScheme.secondary, 
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSecondary, 
+                  ),
+                  decoration: InputDecoration(
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.onSecondary, width: 2),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.onSecondary, width: 2),
+                    ),
+                  ),
+                  items: availableColors.map((color) {
+                    return DropdownMenuItem<String>(
+                      value: color,
+                      child: Text(
+                        color,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() => selectedColor = value);
+                  },
+                  isExpanded: true,
+                ),
 
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  setState(() {}); // Refresh filters
-                },
-                child: const Text('Apply Filters'),
-              ),
-              const SizedBox(height:8),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    selectedBrand = null;
-                    selectedColor = null;
-                  });
-                  // Navigator.pop(context);
-                },
-                child: const Text('Reset Filters'),
-              )
-            ],
+
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {}); // Refresh filters
+                  },
+                  child: const Text('Apply Filters'),
+                ),
+                const SizedBox(height:2),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      selectedBrand = null;
+                      selectedColor = null;
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Reset Filters',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      decoration: TextDecoration.underline,    
+                      decorationStyle: TextDecorationStyle.solid,     
+                      decorationThickness: 3, 
+                      color: Theme.of(context).colorScheme.onPrimary                         
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         );
       },
     );
   }
-} // End of ClosetPage class
+} 

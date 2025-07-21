@@ -7,18 +7,10 @@ class GetSavedLooksView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        uid = request.user.username  # from Firebase decoded token
+        uid = request.user.username 
 
         try:
-            # db = firestore.client()
-            # looks_ref = db.collection("users").document(uid).collection("look_book")
-            # docs = looks_ref.stream()
-
-            # looks = []
-            # for doc in docs:
-            #     data = doc.to_dict()
-            #     data["id"] = doc.id
-            #     looks.append(data)
+            
             looks = get_look_book(uid)
 
             return Response(looks, status=200)
