@@ -105,6 +105,7 @@ test_*.xml
 .DS_Store
 Thumbs.db
 
+
 *.jpg
 *.jpg
 *.[jJ][pP][gG]
@@ -113,6 +114,7 @@ Thumbs.db
 *.png
 *.webm
 *.mp4
+!flutter_frontend_app/lib/assets/icon/app_icon.png
 
 # Secret files
 *.key
