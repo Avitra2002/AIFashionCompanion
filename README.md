@@ -1,4 +1,8 @@
-<h1 align="center">👗 AI Fashion Companion App</h1>
+<p align="center">
+  <img src="flutter_frontend_app/lib/assets/icon/app_icon.png" width="150" height="150">
+</p>
+
+<h1 align="center">AI Fashion Companion App</h1>
 <p align="center"><b>A smart, AI-powered wardrobe organizer and stylist assistant</b><br>
 Helping you dress better, shop smarter, and live more sustainably.</p>
 
