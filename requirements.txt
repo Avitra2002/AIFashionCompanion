@@ -1,6 +1,0 @@
-Django
-djangorestframework
-Pillow
-torch  # or tensorflow
-transformers
-django-cors-headers
