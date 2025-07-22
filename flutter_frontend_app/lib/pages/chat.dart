@@ -23,7 +23,7 @@ class _ChatPageState extends State<ChatPage> {
     Category.bottoms,
     Category.shoes,
   ];
-  final minAmount = 8;
+  final minAmount = 3;
 
 
   @override

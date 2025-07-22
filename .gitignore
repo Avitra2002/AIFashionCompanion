@@ -111,6 +111,8 @@ Thumbs.db
 *.jpeg
 *.[jJ][pP][eE][gG]
 *.png
+*.gif
+*.webm
 
 # Secret files
 *.key

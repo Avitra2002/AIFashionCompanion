@@ -54,7 +54,13 @@ class _AddClothingScreenState extends State<AddClothingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Clothing')),
+      appBar: AppBar(
+        title: Text(
+          'Add Clothing',
+          style: Theme.of(context).textTheme.titleLarge,        
+          ),
+        ),
+      
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -186,7 +192,24 @@ class _AddClothingScreenState extends State<AddClothingScreen> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: TextFormField(
         controller: controller,
-        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+        decoration: InputDecoration(labelText: label, 
+        labelStyle: Theme.of(context).textTheme.bodyMedium,
+        
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.onSecondary),
+        ),
+        
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.onSecondary),
+        ),
+        
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.onSecondary,
+            width: 1, 
+          ),
+          ),
+        ),
         validator: (val) => val == null || val.isEmpty ? 'Required' : null,
       ),
     );
@@ -203,11 +226,32 @@ class _AddClothingScreenState extends State<AddClothingScreen> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: DropdownButtonFormField<T>(
         value: value,
+        dropdownColor:Theme.of(context).colorScheme.secondary ,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).colorScheme.onSecondary, 
+        ),
         onChanged: onChanged,
         items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(labelBuilder(e))))
+            .map((e) => DropdownMenuItem(value: e, child: Text(labelBuilder(e),style: Theme.of(context).textTheme.bodyMedium,)))
             .toList(),
-        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+        decoration: InputDecoration(
+          labelText: label, 
+          labelStyle: Theme.of(context).textTheme.bodyMedium,
+          border: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.onSecondary),
+        ),
+        
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.onSecondary),
+        ),
+        
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.onSecondary,
+            width: 1, 
+          ),
+          ),
+        ),
         validator: (val) => val == null ? 'Required' : null,
       ),
     );

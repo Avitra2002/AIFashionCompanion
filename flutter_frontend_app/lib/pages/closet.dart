@@ -74,7 +74,7 @@ class _ClosetPageState extends State<ClosetPage> {
             children: [
               const CircularProgressIndicator(),
               const SizedBox(width: 16),
-              Expanded(child: Text(message)),
+              Expanded(child: Text(message, style: Theme.of(context).textTheme.bodySmall?.copyWith(color:Theme.of(context).colorScheme.secondary),)),
             ],
           ),
         );
