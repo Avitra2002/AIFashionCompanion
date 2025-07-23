@@ -215,14 +215,30 @@ OLLAMA_HOST=0.0.0.0 ollama serve
 
 ## ☁️ Future Deployment Strategy:
 
-1. Frontend via Firebase Hosting or Vercel
+This project consists of a Flutter Android app frontend and a Django backend running AI models with Celery for asynchronous task management. Data is stored in Firestore and Firebase Storage.
 
-2. Backend via Docker on Render, Heroku, or AWS ECS/Fargate
+Below is the deployment setup plan for production:
 
-3. Redis + Qdrant: Use managed Qdrant Cloud or deploy via Docker on EC2
-4. Shift to API-based LLMs or containerized inference on GPU-backed server.
+| Component           | Where to Deploy                              | Notes                                                        |
+|---------------------|---------------------------------------------|--------------------------------------------------------------|
+| Flutter Android app  | Google Play Store or sideload                | Distribute your app to users                                  |
+| Django backend + Celery | AWS EC2 instance (or other VPS/cloud VM)    | Full control over resources; can run AI models smoothly      |
+| Redis broker        | Run Redis on the same EC2 instance or use Amazon ElastiCache (Redis) | For small scale, running Redis on the same EC2 VM is fine for starters |
+| Celery workers      | Run as separate processes on the same EC2 instance or separate EC2 if load increases | Manages async tasks, background jobs, AI model inference calls |
 
-5. CI/CD via GitHub Actions
+---
+
+### Additional Deployment Plans
+
+- **Containerization with Docker**  
+  Containerize the Django backend, Celery workers, and Redis broker using Docker and `docker-compose`. This makes deployment, scaling, and updates easier and more consistent across environments.
+
+- **Automated Deployment (CI/CD)**  
+  Use continuous integration and deployment tools like **GitHub Actions**, **AWS CodeDeploy**, or similar to automate testing, building, and deploying your backend to AWS EC2 or other cloud platforms.
+
+> ⚠️ The backend has **not been deployed to the cloud** because it performs GPU-intensive tasks involving local LLM (Large Language Model) inference. To avoid the cost of hosted GPU services or paid LLM APIs, the AI models are run **locally** during development.If a suitable free or affordable hosted LLM API becomes available, the Django backend would be deployed on a cloud platform (e.g., **Heroku/Railway.app free tier**) for full integration with the mobile app.
+This decision helps keep the project cost-effective while demonstrating the full functionality of the system in a local environment.
+
 
 ## 📝 License
 
