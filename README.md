@@ -14,7 +14,7 @@ Here’s a quick look at the AI Fashion Companion in action:
 
 ![App Demo](demo.gif)
 
-
+(!Note: There are repeated items listed as the demo only has limited clost items to choose from)
 ## 📌 Overview
 
 With the rapid rise of fast media like TikTok and live-selling platforms, it’s easy to lose track of our wardrobe and buy clothing we don’t need — often worn only once or twice. The **AI Fashion Companion App** helps users:
